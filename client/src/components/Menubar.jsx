@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MacIcon } from "./MacIcon";
 
-export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
+export function Menubar({ activeApp, currentUser, onLogout, clipboardVal, theme }) {
   const [time, setTime] = useState(new Date());
   const [showCal, setShowCal] = useState(false);
   const [showClip, setShowClip] = useState(false);
@@ -23,10 +23,12 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
     setCopied(true); setTimeout(() => setCopied(false), 1500);
   };
 
+  const logoSrc = theme === "dark" ? "/vos-black.png" : "/vos-white.png";
+
   return (
     <div style={{ height: 24, background: "var(--bg-menubar)", borderBottom: "1px solid var(--border)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", padding: "0 12px", justifyContent: "space-between", position: "relative", zIndex: 1000 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <img src="/favicon.png" style={{ width: 14, height: 14, objectFit: "contain", borderRadius: 3, cursor: "pointer", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.15))" }} alt="logo" />
+        <img src={logoSrc} style={{ width: 16, height: 16, objectFit: "contain", borderRadius: 3, cursor: "pointer", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.15))" }} alt="logo" />
         {activeApp && <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }}>{activeApp}</span>}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

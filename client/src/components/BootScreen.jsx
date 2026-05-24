@@ -54,11 +54,11 @@ export function BootScreen({ onComplete }) {
     >
       {/* Logo */}
       <img
-        src="/favicon.png"
+        src="/vos-white.png"
         alt="VOS"
         style={{
-          width: 80,
-          height: 80,
+          width: 160,
+          height:160,
           objectFit: "contain",
           marginBottom: 48,
           filter: "brightness(1) drop-shadow(0 0 20px rgba(255,255,255,0.1))",
@@ -77,7 +77,7 @@ export function BootScreen({ onComplete }) {
       >
         <div
           style={{
-            width: `${progress}%`,
+            width: progress + "%",
             height: "100%",
             background: "#fff",
             borderRadius: 2,
