@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { MacIcon } from "./MacIcon";
 
 export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
   const [time, setTime] = useState(new Date());
