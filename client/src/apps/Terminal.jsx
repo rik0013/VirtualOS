@@ -32,15 +32,15 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
       pwd: () => push(cwd),
       whoami: () => push(currentUser.username),
       clear: () => setLines([]),
-      ls: () => { const t = arg ? resolvePath(cwd, arg) : cwd; const items = listDir(fs, t); push(items.length ? items.map((i) => (i.isDir ? "📁 " + i.name + "/" : "📄 " + i.name)).join("  ") : "(empty)"); },
+      ls: () => { const t = arg ? resolvePath(cwd, arg) : cwd; const items = listDir(fs, t); push(items.length ? items.map((i) => (i.isDir ? "dir: " + i.name + "/" : "file: " + i.name)).join("  ") : "(empty)"); },
       cd: () => { if (!arg) { setCwd("/home/" + currentUser.username); return; } const t = resolvePath(cwd, arg); const n = getNode(fs, t); if (n === null || typeof n !== "object") { push("cd: no such directory: " + arg, "error"); return; } setCwd(t); },
       cat: () => { if (!arg) { push("Usage: cat <file>", "error"); return; } const p = resolvePath(cwd, arg); const n = getNode(fs, p); if (n === null) { push("cat: No such file: " + arg, "error"); return; } if (typeof n === "object") { push("cat: Is a directory: " + arg, "error"); return; } push(n); },
       echo: () => push(arg),
-      mkdir: () => { if (!arg) { push("Usage: mkdir <dir>", "error"); return; } setFs(setNode(fs, resolvePath(cwd, arg), {})); notify({ icon: "📁", message: "Created " + arg }); },
-      touch: () => { if (!arg) { push("Usage: touch <file>", "error"); return; } setFs(setNode(fs, resolvePath(cwd, arg), "")); notify({ icon: "📄", message: "Created " + arg }); },
+      mkdir: () => { if (!arg) { push("Usage: mkdir <dir>", "error"); return; } setFs(setNode(fs, resolvePath(cwd, arg), {})); notify({ icon: "folder", message: "Created " + arg }); },
+      touch: () => { if (!arg) { push("Usage: touch <file>", "error"); return; } setFs(setNode(fs, resolvePath(cwd, arg), "")); notify({ icon: "document", message: "Created " + arg }); },
       rm: () => { if (!arg) { push("Usage: rm <file>", "error"); return; } const p = resolvePath(cwd, arg); if (getNode(fs, p) === null) { push("rm: No such file: " + arg, "error"); return; } setFs(deleteNode(fs, p)); push("Removed " + arg); },
       eval: () => {
-        if (line === "sudo rm -rf /") { push("💥 SYSTEM DESTRUCTION INITIATED...", "error"); setTimeout(() => push("just kidding 😄", "info"), 800); return; }
+        if (line === "sudo rm -rf /") { push("SYSTEM DESTRUCTION INITIATED...", "error"); setTimeout(() => push("just kidding", "info"), 800); return; }
         try { push(String(Function('"use strict"; return (' + arg + ')')())); } catch (e) { push("Error: " + e.message, "error"); }
       },
     };
@@ -55,7 +55,7 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
         <div key={i} onClick={(e) => { e.stopPropagation(); if (h.type !== "prompt") copyLine(h.text, i); }}
           title={h.type !== "prompt" ? "Click to copy" : ""}
           style={{ color: copiedLine === i ? "var(--accent-yellow)" : colors[h.type], lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all", cursor: h.type !== "prompt" ? "pointer" : "default", borderRadius: 4, padding: "1px 2px", transition: "color 0.2s" }}>
-          {copiedLine === i ? "✅ copied!" : h.text}
+          {copiedLine === i ? "copied!" : h.text}
         </div>
       ))}
       {suggestions.length > 0 && <div style={{ color: "var(--text-muted)", marginBottom: 4 }}>{suggestions.join("  ")}</div>}

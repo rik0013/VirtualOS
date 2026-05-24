@@ -12,7 +12,7 @@ export function TextEditor({ initialPath, initialContent, fs, setFs, notify, onC
     if (!path) return;
     setFs(setNode(fs, path, content));
     setSaved(true);
-    notify({ icon: "💾", title: "Saved", message: path.split("/").pop() });
+    notify({ icon: "save", title: "Saved", message: path.split("/").pop() });
   };
 
   const copySelection = () => {
@@ -30,7 +30,7 @@ export function TextEditor({ initialPath, initialContent, fs, setFs, notify, onC
       <div style={{ padding: "6px 12px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 12, color: "var(--text-secondary)", flex: 1 }}>{path || "Untitled"}{!saved ? " •" : ""}</span>
         <button onClick={copySelection} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, background: "var(--bg-input)", border: "1px solid var(--border)", color: selectionCopied ? "var(--accent-green)" : "var(--text-secondary)" }}>
-          {selectionCopied ? "✅ Copied" : "Copy"}
+          {selectionCopied ? "Copied" : "Copy"}
         </button>
         <button onClick={save} style={{ fontSize: 12, padding: "4px 12px", borderRadius: 6, background: "var(--accent)", color: "#fff", fontWeight: 600 }}>Save</button>
       </div>

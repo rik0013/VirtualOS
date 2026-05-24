@@ -33,7 +33,7 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
         <div style={{ position: "relative" }}>
           <button onClick={() => { setShowClip(!showClip); setShowCal(false); }}
             title="Clipboard" style={{ fontSize: 12, padding: "2px 8px", borderRadius: 5, background: clipboardVal ? "var(--bg-selected)" : "var(--bg-hover)", color: clipboardVal ? "var(--accent)" : "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-            📋 {clipboardVal ? <span style={{ maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-block" }}>{clipboardVal}</span> : <span>empty</span>}
+            <MacIcon type="copy" size={14} /> {clipboardVal ? <span style={{ maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-block" }}>{clipboardVal}</span> : <span>empty</span>}
           </button>
           {showClip && (
             <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 32, width: 280, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 12, padding: 14, boxShadow: "var(--shadow)", zIndex: 2000, animation: "fadeIn 0.15s ease" }}>
@@ -41,7 +41,7 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
               {clipboardVal ? (
                 <>
                   <div style={{ fontSize: 12, color: "var(--text-primary)", background: "var(--bg-input)", borderRadius: 8, padding: "8px 10px", maxHeight: 100, overflowY: "auto", whiteSpace: "pre-wrap", wordBreak: "break-all", marginBottom: 10, fontFamily: "'JetBrains Mono', monospace" }}>{clipboardVal}</div>
-                  <button onClick={handleCopyClipboard} style={{ width: "100%", padding: "7px", borderRadius: 7, background: "var(--accent)", color: "#fff", fontSize: 12, fontWeight: 600 }}>{copied ? "✅ Copied!" : "Copy to system clipboard"}</button>
+                  <button onClick={handleCopyClipboard} style={{ width: "100%", padding: "7px", borderRadius: 7, background: "var(--accent)", color: "#fff", fontSize: 12, fontWeight: 600 }}>{copied ? "Copied!" : "Copy to system clipboard"}</button>
                 </>
               ) : (
                 <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>Nothing copied yet</div>

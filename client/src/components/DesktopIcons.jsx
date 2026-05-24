@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { getNode, setNode, deleteNode, listDir } from "../utils/fs";
 import { ICON_SIZES, ICON_FONT, ICON_TEXT } from "../constants/wallpapers";
 import { MacIcon } from "./Dock";
@@ -103,10 +103,10 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
       {ctxMenu && (
         <div onClick={(e) => e.stopPropagation()} style={{ position: "fixed", left: ctxMenu.x, top: ctxMenu.y, zIndex: 4000, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 10, overflow: "hidden", boxShadow: "var(--shadow)", minWidth: 160, animation: "fadeIn 0.12s ease" }}>
           {[
-            { label: ctxMenu.item.isDir ? "Open Folder" : "Open", icon: "↗️", action: () => { handleDblClick(ctxMenu.item); setCtxMenu(null); } },
-            { label: "Rename", icon: "✏️", action: () => startRename(ctxMenu.item) },
+            { label: ctxMenu.item.isDir ? "Open Folder" : "Open", icon: "open", action: () => { handleDblClick(ctxMenu.item); setCtxMenu(null); } },
+            { label: "Rename", icon: "rename", action: () => startRename(ctxMenu.item) },
             { divider: true },
-            { label: "Delete", icon: "🗑️", action: () => { onDelete(ctxMenu.item.name); setCtxMenu(null); } },
+            { label: "Delete", icon: "trash", action: () => { onDelete(ctxMenu.item.name); setCtxMenu(null); } },
           ].map((it, i) => it.divider
             ? <div key={i} style={{ height: 1, background: "var(--border)", margin: "3px 0" }} />
             : <button key={i} onClick={it.action} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "8px 14px", fontSize: 13, color: "var(--text-primary)", background: "transparent", textAlign: "left" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-hover)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}><span>{it.icon}</span>{it.label}</button>

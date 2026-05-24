@@ -1,3 +1,4 @@
+import { MacIcon } from "./components/MacIcon";
 import React, { useState, useEffect, useCallback } from "react";
 import { THEMES } from "./constants/theme";
 import { getNode, setNode, deleteNode, makeDefaultFS } from "./utils/fs";
@@ -126,14 +127,14 @@ export default function VirtualOS() {
     const name = "new_file_" + Date.now() + ".txt";
     const path = "/home/" + currentUser.username + "/desktop/" + name;
     setFs(setNode(fs, path, ""));
-    notify({ icon: "📝", message: "Created " + name });
+    notify({ icon: "file", message: "Created " + name });
     closeContextMenu();
   };
   const handleNewFolder = () => {
     const name = "new_folder_" + Date.now();
     const path = "/home/" + currentUser.username + "/desktop/" + name;
     setFs(setNode(fs, path, {}));
-    notify({ icon: "📁", message: "Created " + name });
+    notify({ icon: "folder", message: "Created " + name });
     closeContextMenu();
   };
   const handleDeleteDesktopItem = (name) => {
@@ -144,7 +145,7 @@ export default function VirtualOS() {
     let newFs = setNode(fs, trashPath, node);
     newFs = deleteNode(newFs, path);
     setFs(newFs);
-    notify({ icon: "🗑️", message: "Moved to Trash: " + name });
+    notify({ icon: "trash", message: "Moved to Trash: " + name });
   };
 
   if (!currentUser) return <LoginScreen onLogin={handleLogin} />;

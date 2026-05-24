@@ -15,20 +15,20 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
     else onOpenFile(np, node, name);
   };
   const breadcrumb = (idx) => { if (idx === -1) { setPath("/"); return; } setPath("/" + parts.slice(0, idx + 1).join("/")); };
-  const handleDelete = (name) => { setFs(deleteNode(fs, (path === "/" ? "" : path) + "/" + name)); notify({ icon: "🗑️", message: "Deleted " + name }); setSelected(null); };
+  const handleDelete = (name) => { setFs(deleteNode(fs, (path === "/" ? "" : path) + "/" + name)); notify({ icon: "trash", message: "Deleted " + name }); setSelected(null); };
   const handleNew = (isDir) => {
     const name = isDir ? "folder_" + Date.now() : "file_" + Date.now() + ".txt";
     setFs(setNode(fs, (path === "/" ? "" : path) + "/" + name, isDir ? {} : ""));
-    notify({ icon: isDir ? "📁" : "📝", message: "Created " + name });
+    notify({ icon: isDir ? "folder" : "file", message: "Created " + name });
   };
 
   const favs = [
-    { label: "Home", path: "/home/" + currentUser.username, icon: "🏠" },
-    { label: "Desktop", path: "/home/" + currentUser.username + "/desktop", icon: "🖥️" },
-    { label: "Documents", path: "/home/" + currentUser.username + "/documents", icon: "📄" },
-    { label: "Downloads", path: "/home/" + currentUser.username + "/downloads", icon: "⬇️" },
-    { label: "Trash", path: "/trash", icon: "🗑️" },
-    { label: "Root /", path: "/", icon: "💾" },
+    { label: "Home", path: "/home/" + currentUser.username, icon: "home" },
+    { label: "Desktop", path: "/home/" + currentUser.username + "/desktop", icon: "desktop" },
+    { label: "Documents", path: "/home/" + currentUser.username + "/documents", icon: "document" },
+    { label: "Downloads", path: "/home/" + currentUser.username + "/downloads", icon: "folder" },
+    { label: "Trash", path: "/trash", icon: "trash" },
+    { label: "Root /", path: "/", icon: "save" },
   ];
 
   return (
@@ -37,7 +37,7 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
         <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8, padding: "0 8px", textTransform: "uppercase", letterSpacing: 1 }}>Favorites</div>
         {favs.map((item) => (
           <button key={item.path} onClick={() => setPath(item.path)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "6px 8px", borderRadius: 7, fontSize: 12, color: path === item.path ? "var(--accent)" : "var(--text-secondary)", background: path === item.path ? "var(--bg-selected)" : "transparent", textAlign: "left" }}>
-            <span>{item.icon}</span>{item.label}
+            <MacIcon type={item.icon} size={16} />{item.label}
           </button>
         ))}
       </div>

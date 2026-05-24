@@ -1,3 +1,4 @@
+import { MacIcon } from "../components/MacIcon";
 import React, { useState } from "react";
 import { djb2 } from "../utils/fs";
 import { Storage } from "../utils/storage";
@@ -38,7 +39,7 @@ export function Settings({ prefs, setPrefs, currentUser, notify }) {
   };
 
   const inp = { style: { width: "100%", background: "var(--bg-input)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "var(--text-primary)", marginBottom: 10 } };
-  const tabs = [{ id: "appearance", label: "Appearance", icon: "🎨" }, { id: "account", label: "Account", icon: "👤" }];
+  const tabs = [{ id: "appearance", label: "Appearance", icon: "theme" }, { id: "account", label: "Account", icon: "user" }];
 
   return (
     <div style={{ display: "flex", height: "100%", background: "var(--bg-window)" }}>
@@ -48,7 +49,7 @@ export function Settings({ prefs, setPrefs, currentUser, notify }) {
         {tabs.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "7px 10px", borderRadius: 8, fontSize: 13, color: tab === t.id ? "var(--accent)" : "var(--text-secondary)", background: tab === t.id ? "var(--bg-selected)" : "transparent", textAlign: "left", marginBottom: 2 }}>
-            <span>{t.icon}</span>{t.label}
+            <MacIcon type={t.icon} size={16} />{t.label}
           </button>
         ))}
       </div>
@@ -64,7 +65,7 @@ export function Settings({ prefs, setPrefs, currentUser, notify }) {
                 {["dark", "light"].map((t) => (
                   <button key={t} onClick={() => setPrefs({ ...prefs, theme: t })}
                     style={{ flex: 1, padding: "14px", borderRadius: 12, background: t === "dark" ? "#0f1117" : "#e8ecf4", border: "2px solid " + (prefs.theme === t ? "var(--accent)" : "var(--border)"), cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 20 }}>{t === "dark" ? "🌙" : "☀️"}</span>
+                    <MacIcon type={t === "dark" ? "moon" : "sun"} size={20} />
                     <span style={{ fontSize: 12, color: t === "dark" ? "#e8eaf0" : "#1a1d27", fontWeight: prefs.theme === t ? 600 : 400 }}>{t.charAt(0).toUpperCase() + t.slice(1)}</span>
                   </button>
                 ))}

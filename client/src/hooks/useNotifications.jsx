@@ -1,3 +1,4 @@
+import { MacIcon } from "../components/MacIcon";
 import React from "react";
 
 export function NotificationSystem({ notifications }) {
@@ -9,7 +10,7 @@ export function NotificationSystem({ notifications }) {
           padding: "10px 14px", minWidth: 220, maxWidth: 300, boxShadow: "var(--shadow)",
           animation: "toastIn 0.2s ease", display: "flex", alignItems: "center", gap: 10,
         }}>
-          <span style={{ fontSize: 16 }}>{n.icon || "📋"}</span>
+          <MacIcon type={n.icon || "copy"} size={24} />
           <div>
             {n.title && <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{n.title}</div>}
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{n.message}</div>

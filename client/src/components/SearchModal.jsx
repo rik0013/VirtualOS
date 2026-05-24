@@ -1,3 +1,4 @@
+import { MacIcon } from "../components/MacIcon";
 import React, { useState, useEffect, useRef } from "react";
 import { getNode, fuzzyMatch } from "../utils/fs";
 import { DOCK_APPS } from "./Dock";
@@ -46,7 +47,7 @@ export function SearchModal({ fs, onClose, onOpenApp, onOpenFile }) {
               <div style={{ padding: "4px 18px 6px", fontSize: 10, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Files</div>
               {fileResults.slice(0, 8).map((f) => (
                 <button key={f.path} onClick={() => { if (!f.isDir) { onOpenFile(f.path, getNode(fs, f.path), f.name); } onClose(); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "8px 18px", background: "transparent", textAlign: "left" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-hover)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                  <span style={{ fontSize: 16 }}>{f.isDir ? "📁" : "📝"}</span>
+                  <MacIcon type={f.isDir ? "folder" : "file"} size={16} />
                   <div><div style={{ fontSize: 13, color: "var(--text-primary)" }}>{f.name}</div><div style={{ fontSize: 11, color: "var(--text-muted)" }}>{f.path}</div></div>
                 </button>
               ))}

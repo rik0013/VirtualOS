@@ -1,3 +1,4 @@
+import { MacIcon } from "../components/MacIcon";
 import React, { useState } from "react";
 import { djb2, makeDefaultFS } from "../utils/fs";
 import { Storage } from "../utils/storage";
@@ -42,7 +43,7 @@ export function LoginScreen({ onLogin }) {
     <div style={{ width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: WALLPAPERS.mesh }}>
       <div style={{ width: 340, background: "var(--bg-window)", border: "1px solid var(--border-strong)", borderRadius: 20, padding: 36, boxShadow: "var(--shadow)", animation: "slideUp 0.3s ease", backdropFilter: "blur(24px)" }}>
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 40, marginBottom: 10 }}>🖥️</div>
+          <MacIcon type="desktop" size={40} style={{ marginBottom: 10 }} />
           <div style={{ fontSize: 22, fontWeight: 600, color: "var(--text-primary)", letterSpacing: "-0.5px" }}>VirtualOS</div>
           <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>{showCreate ? "Create account" : "Sign in to continue"}</div>
         </div>
