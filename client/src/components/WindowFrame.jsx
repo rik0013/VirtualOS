@@ -33,7 +33,7 @@ export function WindowFrame({ win, onClose, onMinimize, onMaximize, onFocus, onU
   if (win.minimized) return null;
   const isMax = win.maximized;
   const wStyle = isMax
-    ? { position: "fixed", left: 0, top: 28, width: "100vw", height: "calc(100vh - 28px)", zIndex: win.zIndex }
+    ? { position: "fixed", left: 0, top: 24, width: "100vw", height: "calc(100vh - 24px)", zIndex: win.zIndex }
     : { position: "absolute", left: win.x, top: win.y, width: win.width, height: win.height, zIndex: win.zIndex };
 
   return (

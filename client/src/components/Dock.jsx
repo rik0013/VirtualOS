@@ -14,7 +14,7 @@ export const DOCK_APPS = [
  * ============================================================ */
 export const MacIcon = ({ type, size = 52, ...props }) => {
   return (
-    <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.15))", transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)", ...props.style }}>
+    <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.15))", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", ...props.style }}>
       {type === "terminal" && (
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           <rect x="5" y="10" width="90" height="80" rx="16" fill="url(#termGrad)" stroke="#4A4A4A" strokeWidth="2"/>
@@ -117,34 +117,63 @@ export const MacIcon = ({ type, size = 52, ...props }) => {
 };
 
 export function Dock({ onOpen }) {
-  const [hovered, setHovered] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const getScale = (idx) => {
+    if (hoveredIndex === null) return 1;
+    const dist = Math.abs(idx - hoveredIndex);
+    if (dist === 0) return 1.45;
+    if (dist === 1) return 1.25;
+    if (dist === 2) return 1.1;
+    return 1;
+  };
+
   return (
-    <div style={{ position: "fixed", bottom: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 24, padding: "10px 14px", display: "flex", gap: 10, zIndex: 500, boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}>
-      {DOCK_APPS.map((app) => {
-        const isHovered = hovered === app.id;
+    <div 
+      style={{ 
+        position: "fixed", 
+        bottom: 12, 
+        left: "50%", 
+        transform: "translateX(-50%)", 
+        background: "var(--bg-dock)", 
+        backdropFilter: "blur(30px) saturate(180%)", 
+        border: "1px solid rgba(255, 255, 255, 0.12)", 
+        borderRadius: 24, 
+        padding: "10px 14px", 
+        display: "flex", 
+        alignItems: "flex-end", 
+        gap: 12, 
+        zIndex: 500, 
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2)",
+        transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+      }}
+      onMouseLeave={() => setHoveredIndex(null)}
+    >
+      {DOCK_APPS.map((app, idx) => {
+        const scale = getScale(idx);
+        const size = Math.round(46 * scale);
+        
         return (
           <button 
             key={app.id} 
             onClick={() => onOpen(app.id)} 
-            onMouseEnter={() => setHovered(app.id)} 
-            onMouseLeave={() => setHovered(null)} 
+            onMouseEnter={() => setHoveredIndex(idx)} 
             title={app.label}
             style={{ 
-              width: isHovered ? 56 : 44, 
-              height: isHovered ? 56 : 44, 
+              width: size, 
+              height: size, 
               borderRadius: 12, 
               background: "transparent", 
               border: "none", 
               display: "flex", 
               alignItems: "center", 
               justifyContent: "center", 
-              transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)", 
-              marginBottom: isHovered ? -12 : 0,
-              transform: isHovered ? "translateY(-8px)" : "translateY(0)",
+              transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", 
+              transform: `translateY(${-((scale - 1) * 12)}px)`,
               cursor: "pointer",
               outline: "none"
             }}>
-            <MacIcon type={app.icon} size={isHovered ? 56 : 44} />
+            <MacIcon type={app.icon} size={size} style={{ transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }} />
           </button>
         );
       })}

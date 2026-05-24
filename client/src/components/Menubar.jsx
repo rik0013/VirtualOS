@@ -24,7 +24,7 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
   };
 
   return (
-    <div style={{ height: 28, background: "var(--bg-menubar)", borderBottom: "1px solid var(--border)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", padding: "0 16px", justifyContent: "space-between", position: "relative", zIndex: 1000 }}>
+    <div style={{ height: 24, background: "var(--bg-menubar)", borderBottom: "1px solid var(--border)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", padding: "0 12px", justifyContent: "space-between", position: "relative", zIndex: 1000 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: "var(--accent)", letterSpacing: "-0.3px" }}>VOS</span>
         {activeApp && <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }}>{activeApp}</span>}
@@ -37,7 +37,7 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
             <MacIcon type="copy" size={14} /> {clipboardVal ? <span style={{ maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-block" }}>{clipboardVal}</span> : <span>empty</span>}
           </button>
           {showClip && (
-            <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 32, width: 280, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 12, padding: 14, boxShadow: "var(--shadow)", zIndex: 2000, animation: "fadeIn 0.15s ease" }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 28, width: 280, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 12, padding: 14, boxShadow: "var(--shadow)", zIndex: 2000, animation: "fadeIn 0.15s ease" }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Clipboard</div>
               {clipboardVal ? (
                 <>
@@ -56,7 +56,7 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
             {now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })} &nbsp; {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </button>
           {showCal && (
-            <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 30, width: 220, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 12, padding: 14, boxShadow: "var(--shadow)", zIndex: 2000, animation: "fadeIn 0.15s ease" }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 28, width: 220, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 12, padding: 14, boxShadow: "var(--shadow)", zIndex: 2000, animation: "fadeIn 0.15s ease" }}>
               <div style={{ textAlign: "center", fontWeight: 600, fontSize: 13, marginBottom: 10, color: "var(--text-primary)" }}>{monthName} {year}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2, textAlign: "center" }}>
                 {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => <div key={d} style={{ fontSize: 10, color: "var(--text-muted)", padding: 3, fontWeight: 600 }}>{d}</div>)}

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getNode, setNode, deleteNode, listDir } from "../utils/fs";
 import { ICON_SIZES, ICON_FONT, ICON_TEXT } from "../constants/wallpapers";
 import { MacIcon } from "./Dock";
@@ -95,7 +95,25 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
                 onClick={(e) => e.stopPropagation()}
                 style={{ fontSize: TFONT, color: "var(--text-primary)", background: "var(--bg-input)", border: "1px solid var(--accent)", borderRadius: 4, padding: "1px 4px", width: "100%", textAlign: "center" }} />
             ) : (
-              <div style={{ fontSize: TFONT, color: "#fff", lineHeight: 1.3, wordBreak: "break-word", textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7)", pointerEvents: "none" }}>{item.name}</div>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+                <span style={{ 
+                  fontSize: TFONT, 
+                  color: "#fff", 
+                  lineHeight: 1.3, 
+                  wordBreak: "break-word", 
+                  padding: "2px 6px",
+                  borderRadius: "6px",
+                  background: isSelected ? "var(--accent)" : "rgba(0, 0, 0, 0.25)",
+                  backdropFilter: "blur(6px)",
+                  display: "inline-block",
+                  maxWidth: "100%",
+                  textShadow: "0 1px 2px rgba(0, 0, 0, 0.6)",
+                  border: isSelected ? "1px solid rgba(255, 255, 255, 0.15)" : "1px solid rgba(255, 255, 255, 0.05)",
+                  pointerEvents: "none" 
+                }}>
+                  {item.name}
+                </span>
+              </div>
             )}
           </div>
         );
