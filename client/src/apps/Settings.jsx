@@ -75,16 +75,25 @@ export function Settings({ prefs, setPrefs, currentUser, notify }) {
             {/* Wallpaper */}
             <div style={{ marginBottom: 28 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", marginBottom: 12 }}>Wallpaper</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 12 }}>
                 {Object.keys(WALLPAPERS).map((name) => (
-                  <button key={name} onClick={() => setPrefs({ ...prefs, wallpaper: name })}
-                    style={{ height: 72, borderRadius: 10, background: WALLPAPERS[name], border: "2px solid " + (prefs.wallpaper === name ? "var(--accent)" : "transparent"), cursor: "pointer", overflow: "hidden", position: "relative" }}>
+                  <button key={name} onClick={() => setPrefs({ ...prefs, wallpaper: name, customWallpaper: null })}
+                    style={{ height: 72, borderRadius: 10, background: WALLPAPERS[name], border: "2px solid " + (prefs.wallpaper === name && !prefs.customWallpaper ? "var(--accent)" : "transparent"), cursor: "pointer", overflow: "hidden", position: "relative" }}>
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "3px 6px", background: "rgba(0,0,0,0.5)" }}>
                       <span style={{ fontSize: 10, color: "#fff", textTransform: "capitalize" }}>{name}</span>
                     </div>
-                    {prefs.wallpaper === name && <div style={{ position: "absolute", top: 4, right: 4, fontSize: 12 }}>"</div>}
                   </button>
                 ))}
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Custom Wallpaper (URL)</div>
+                <input 
+                  type="text" 
+                  value={prefs.customWallpaper || ""} 
+                  onChange={(e) => setPrefs({ ...prefs, customWallpaper: e.target.value })} 
+                  placeholder="https://example.com/image.jpg"
+                  style={{ width: "100%", padding: "8px 12px", background: "var(--bg-input)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-primary)", fontSize: 12, outline: "none" }}
+                />
               </div>
             </div>
 

@@ -160,7 +160,7 @@ export default function VirtualOS() {
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh", background: WALLPAPERS[prefs.wallpaper] || WALLPAPERS.mesh, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "100vw", height: "100vh", background: prefs.customWallpaper ? `url(${prefs.customWallpaper}) center / cover no-repeat` : (WALLPAPERS[prefs.wallpaper] || WALLPAPERS.catalina), overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <GlobalStyle />
       <Menubar activeApp={activeWindow?.title} currentUser={currentUser} onLogout={handleLogout} clipboardVal={clipboardVal} />
       <main onContextMenu={handleDesktopRightClick} style={{ flex: 1, position: "relative" }}>
