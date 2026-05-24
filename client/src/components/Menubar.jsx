@@ -25,8 +25,8 @@ export function Menubar({ activeApp, currentUser, onLogout, clipboardVal }) {
 
   return (
     <div style={{ height: 24, background: "var(--bg-menubar)", borderBottom: "1px solid var(--border)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", padding: "0 12px", justifyContent: "space-between", position: "relative", zIndex: 1000 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--accent)", letterSpacing: "-0.3px" }}>VOS</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <img src="/favicon.png" style={{ width: 14, height: 14, objectFit: "contain", borderRadius: 3, cursor: "pointer", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.15))" }} alt="logo" />
         {activeApp && <span style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }}>{activeApp}</span>}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

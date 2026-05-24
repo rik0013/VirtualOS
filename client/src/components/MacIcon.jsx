@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 export const DOCK_APPS = [
   { id: "terminal", icon: "terminal", label: "Terminal" },
@@ -8,8 +8,37 @@ export const DOCK_APPS = [
 ];
 
 export const MacIcon = ({ type, size = 52, color = "currentColor", ...props }) => {
+  const [loadError, setLoadError] = useState(false);
+
+  const getIconUrl = (t) => {
+    const base = "https://raw.githubusercontent.com/PuruVJ/macos-web/main/public/app-icons/";
+    switch(t) {
+      case "finder": return `${base}finder/256.png`;
+      case "terminal": return `${base}terminal/256.png`;
+      case "editor": return `${base}textedit/256.png`;
+      case "settings": return `${base}system-preferences/256.png`;
+      case "folder": return `${base}finder/256.png`;
+      default: return null;
+    }
+  };
+
+  const url = getIconUrl(type);
+
+  if (url && !loadError) {
+    return (
+      <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.18))", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", ...props.style }}>
+        <img 
+          src={url} 
+          style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+          alt={type} 
+          onError={() => setLoadError(true)} 
+        />
+      </div>
+    );
+  }
+
   return (
-    <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.15))", transition: "all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)", ...props.style }}>
+    <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.15))", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", ...props.style }}>
       {type === "terminal" && (
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           <rect x="5" y="10" width="90" height="80" rx="16" fill="url(#termGrad)" stroke="#4A4A4A" strokeWidth="2"/>

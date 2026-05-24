@@ -13,6 +13,34 @@ export const DOCK_APPS = [
  * ICONS (macOS inspired SVGs)
  * ============================================================ */
 export const MacIcon = ({ type, size = 52, ...props }) => {
+  const [loadError, setLoadError] = useState(false);
+
+  const getIconUrl = (t) => {
+    const base = "https://raw.githubusercontent.com/elrumo/macOS_Big_Sur_icons/master/icons/";
+    switch(t) {
+      case "finder": return `${base}Finder.png`;
+      case "terminal": return `${base}Terminal.png`;
+      case "editor": return `${base}TextEdit.png`;
+      case "settings": return `${base}System%20Preferences.png`;
+      default: return null;
+    }
+  };
+
+  const url = getIconUrl(type);
+
+  if (url && !loadError) {
+    return (
+      <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.18))", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", ...props.style }}>
+        <img 
+          src={url} 
+          style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+          alt={type} 
+          onError={() => setLoadError(true)} 
+        />
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.15))", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", ...props.style }}>
       {type === "terminal" && (
@@ -136,8 +164,8 @@ export function Dock({ onOpen }) {
         left: "50%", 
         transform: "translateX(-50%)", 
         background: "var(--bg-dock)", 
-        backdropFilter: "blur(30px) saturate(180%)", 
-        border: "1px solid rgba(255, 255, 255, 0.12)", 
+        backdropFilter: "blur(40px) saturate(220%)", 
+        border: "1px solid rgba(255, 255, 255, 0.15)", 
         borderRadius: 24, 
         padding: "10px 14px", 
         display: "flex", 
