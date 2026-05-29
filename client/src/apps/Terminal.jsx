@@ -3,7 +3,7 @@ import { getNode, setNode, deleteNode, listDir, resolvePath } from "../utils/fs"
 
 
 export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }) {
-  const [lines, setLines] = useState([{ type: "info", text: "VirtualOS Terminal — A JavaScript REPL\ntype 'help' for commands. Click any output line to copy it.\nYou can also run JavaScript directly (e.g., 2+2, Math.random(), etc.)" }]);
+  const [lines, setLines] = useState([{ type: "info", text: "Type 'help' for commands. Click any output line to copy it." }]);
   const [input, setInput] = useState("");
   const [cmdHist, setCmdHist] = useState([]);
   const [histIdx, setHistIdx] = useState(-1);

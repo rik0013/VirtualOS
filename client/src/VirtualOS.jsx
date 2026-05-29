@@ -18,6 +18,7 @@ import { TextEditor } from "./apps/TextEditor";
 import { Settings } from "./apps/Settings";
 import { Music } from "./apps/Music";
 import { Browser } from "./apps/Browser";
+import { Assistant } from "./apps/Assistant";
 import { SearchModal } from "./components/SearchModal";
 import { ContextMenu } from "./components/ContextMenu";
 import { Launchpad } from "./components/Launchpad";
@@ -104,6 +105,7 @@ export default function VirtualOS() {
       editor: { title: extra.filename || "Text Editor", width: 560, height: 440 },
       music: { title: "Music", width: 520, height: 380 },
       browser: { title: "Browser", width: 980, height: 640 },
+      assistant: { title: "Assistant", width: 860, height: 680 },
       settings: { title: "Settings", width: 580, height: 460 },
     };
     const cfg = configs[appId] || { title: appId, width: 500, height: 380 };
@@ -195,6 +197,18 @@ export default function VirtualOS() {
     notify({ icon: "trash", message: "Moved to Trash: " + name });
   };
 
+  const createFileAtPath = useCallback((targetPath, content = "") => {
+    if (!currentUser) return false;
+    setFs(setNode(fs, targetPath, content));
+    return true;
+  }, [currentUser, fs, setFs]);
+
+  const createFolderAtPath = useCallback((targetPath) => {
+    if (!currentUser) return false;
+    setFs(setNode(fs, targetPath, {}));
+    return true;
+  }, [currentUser, fs, setFs]);
+
   if (!currentUser) return <LoginScreen onLogin={handleLogin} />;
 
   const activeWindow = [...windows].sort((a, b) => b.zIndex - a.zIndex)[0];
@@ -205,6 +219,7 @@ export default function VirtualOS() {
     editor: (win) => <TextEditor initialPath={win.appState?.initialPath || win.initialPath} initialContent={win.initialContent} fs={fs} setFs={setFs} notify={notify} onCopy={setClipboardVal} />,
     music: (win) => <Music winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} />, 
     browser: (win) => <Browser winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} initialUrl={win.appState?.initialUrl || "https://www.google.com"} />, 
+    assistant: (win) => <Assistant winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} currentUser={currentUser} cwd={cwd} fs={fs} onOpenApp={openApp} onOpenFile={openFile} createFileAtPath={createFileAtPath} createFolderAtPath={createFolderAtPath} notify={notify} />, 
     settings: <Settings prefs={prefs} setPrefs={setPrefs} currentUser={currentUser} notify={notify} />,
   };
 

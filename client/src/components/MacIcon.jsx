@@ -4,6 +4,7 @@ export const DOCK_APPS = [
   { id: "terminal", icon: "terminal", label: "Terminal" },
   { id: "files", icon: "finder", label: "Files" },
   { id: "editor", icon: "editor", label: "Editor" },
+  { id: "assistant", icon: "assistant", label: "Assistant" },
   { id: "settings", icon: "settings", label: "Settings" },
 ];
 
@@ -136,6 +137,30 @@ export const MacIcon = ({ type, size = 52, color = "currentColor", ...props }) =
           </defs>
         </svg>
       )}
+      {type === "settings" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="settingsBgShared" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#f3f4f6" />
+              <stop offset="1" stopColor="#c7cdd6" />
+            </linearGradient>
+            <linearGradient id="settingsPanelShared" x1="22" y1="20" x2="78" y2="82" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" />
+              <stop offset="1" stopColor="#e5e7eb" />
+            </linearGradient>
+            <linearGradient id="settingsGearShared" x1="30" y1="28" x2="70" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#8b919a" />
+              <stop offset="1" stopColor="#545b66" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#settingsBgShared)" />
+          <rect x="16" y="16" width="68" height="68" rx="20" fill="url(#settingsPanelShared)" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" />
+          <circle cx="50" cy="50" r="20" fill="url(#settingsGearShared)" stroke="#2f3640" strokeWidth="2.5" />
+          <circle cx="50" cy="50" r="9" fill="#2b3139" stroke="#1d2228" strokeWidth="1.5" />
+          <path d="M50 28v8M50 64v8M28 50h8M64 50h8M34 34l6 6M60 60l6 6M34 66l6-6M60 40l6-6" stroke="#6b7280" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="36" cy="34" r="5" fill="rgba(255,255,255,0.35)" />
+        </svg>
+      )}
       {type === "launchpad" && (
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           <defs>
@@ -197,6 +222,26 @@ export const MacIcon = ({ type, size = 52, color = "currentColor", ...props }) =
           <path d="M50 34c-4 4-6 9-6 15s2 11 6 15c4-4 6-9 6-15s-2-11-6-15Z" fill="#2457d6" opacity="0.85" />
           <path d="M35 49h30" stroke="#2457d6" strokeWidth="4" strokeLinecap="round" />
           <path d="M50 34v30" stroke="#2457d6" strokeWidth="4" strokeLinecap="round" opacity="0.7" />
+        </svg>
+      )}
+      {type === "assistant" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="assistantBgShared" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#7c3aed" />
+              <stop offset="1" stopColor="#2563eb" />
+            </linearGradient>
+            <linearGradient id="assistantGlowShared" x1="28" y1="26" x2="72" y2="74" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" stopOpacity="0.96" />
+              <stop offset="1" stopColor="#dbeafe" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#assistantBgShared)" />
+          <path d="M50 18l6 12 13 6-13 6-6 12-6-12-13-6 13-6 6-12Z" fill="url(#assistantGlowShared)" opacity="0.96" />
+          <circle cx="50" cy="56" r="18" fill="rgba(255,255,255,0.18)" />
+          <circle cx="43" cy="54" r="2.8" fill="#fff" />
+          <circle cx="57" cy="54" r="2.8" fill="#fff" />
+          <path d="M42 62c2.5 3 5.4 4.5 8 4.5s5.5-1.5 8-4.5" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
         </svg>
       )}
       {type === "trash" && (

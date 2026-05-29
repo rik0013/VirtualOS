@@ -20,4 +20,4 @@ export async function chatWithGroq(messages, options = {}) {
   return response.json();
 }
 
-export const GROQ_DEFAULT_MODEL = 'llama-3.1-70b-versatile';
+export const GROQ_DEFAULT_MODEL = 'llama-3.3-70b-versatile';
