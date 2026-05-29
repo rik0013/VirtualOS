@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "node index.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.18.0"
   }
 }

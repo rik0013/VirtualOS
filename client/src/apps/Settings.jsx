@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Accessibility,
   BellRing,
@@ -25,12 +25,11 @@ import {
   Info,
 } from "lucide-react";
 import { MacIcon } from "../components/MacIcon";
-import { djb2 } from "../utils/fs";
 import { Storage } from "../utils/storage";
 import { WALLPAPERS } from "../constants/wallpapers";
 
 const sections = [
-  { id: "apple-id", label: "Apple ID", icon: UserRound, group: "Account" },
+  { id: "apple-id", label: "VOS ID", icon: UserRound, group: "Account" },
   { id: "general", label: "General", icon: Sparkles, group: "System" },
   { id: "appearance", label: "Appearance", icon: Palette, group: "Personal" },
   { id: "control-center", label: "Control Center", icon: LayoutGrid, group: "Personal" },
@@ -127,7 +126,7 @@ function PaddedCard({ children, title, subtitle }) {
   );
 }
 
-export function Settings({ prefs, setPrefs, currentUser, notify }) {
+export function Settings({ prefs, setPrefs, currentUser, notify, onAccountChanged }) {
   const [tab, setTab] = useState("appearance");
   const [oldPw, setOldPw] = useState("");
   const [newPw, setNewPw] = useState("");
@@ -141,47 +140,39 @@ export function Settings({ prefs, setPrefs, currentUser, notify }) {
   const [sound, setSound] = useState({ playUiSounds: true, showVolumeOnMenuBar: true, spatialAudio: false });
   const [network, setNetwork] = useState({ wifi: true, bluetooth: true, vpn: false });
 
+  useEffect(() => {
+    setNewUsername(currentUser.username);
+  }, [currentUser.username]);
+
   const visibleSections = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return sections;
     return sections.filter((section) => section.label.toLowerCase().includes(q));
   }, [search]);
 
-  const changeCredentials = () => {
-    const users = Storage.getUsers();
-    const idx = users.findIndex((u) => u.username === currentUser.username);
-    if (idx === -1) return;
-    if (users[idx].passwordHash !== djb2(oldPw)) {
-      setPwMsg({ ok: false, text: "Current password incorrect" });
-      return;
-    }
+  const changeCredentials = async () => {
     if (newPw && newPw !== newPw2) {
       setPwMsg({ ok: false, text: "New passwords don't match" });
       return;
     }
-    if (newUsername !== currentUser.username) {
-      if (users.find((u, i) => u.username === newUsername && i !== idx)) {
-        setPwMsg({ ok: false, text: "Username already taken" });
-        return;
+    try {
+      const result = await Storage.updateUser(currentUser.username, {
+        currentPassword: oldPw,
+        username: newUsername.trim(),
+        password: newPw || undefined,
+      });
+
+      if (result?.user) {
+        Storage.saveSession({ currentUser: result.user.username, loginTime: Date.now() });
+        onAccountChanged?.(result.user);
+        setOldPw("");
+        setNewPw("");
+        setNewPw2("");
+        setPwMsg({ ok: true, text: "Saved successfully" });
       }
+    } catch (error) {
+      setPwMsg({ ok: false, text: error.message || "Could not save changes" });
     }
-
-    const updated = [...users];
-    updated[idx] = { username: newUsername, passwordHash: newPw ? djb2(newPw) : updated[idx].passwordHash };
-    Storage.saveUsers(updated);
-
-    if (newUsername !== currentUser.username) {
-      const fs = Storage.getFS(currentUser.username);
-      const p = Storage.getPrefs(currentUser.username);
-      const dl = Storage.getDesktopLayout(currentUser.username);
-      Storage.saveFS(newUsername, fs);
-      Storage.savePrefs(newUsername, p);
-      Storage.saveDesktopLayout(newUsername, dl);
-    }
-
-    Storage.saveSession({ currentUser: newUsername, loginTime: Date.now() });
-    setPwMsg({ ok: true, text: "Saved! Reloading..." });
-    setTimeout(() => window.location.reload(), 1200);
   };
 
   const sidebarGroups = Object.keys(groupedSections);

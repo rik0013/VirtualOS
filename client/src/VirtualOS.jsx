@@ -24,47 +24,70 @@ import { ContextMenu } from "./components/ContextMenu";
 import { Launchpad } from "./components/Launchpad";
 
 let winIdCounter = 1;
+const DEFAULT_PREFS = { theme: "dark", wallpaper: "mesh", iconSize: "medium" };
 
 export default function VirtualOS() {
   useEffect(() => { initStorage(); }, []);
 
-  const [currentUser, setCurrentUser] = useState(() => {
-    const s = Storage.getSession();
-    if (s) { const users = Storage.getUsers(); return users.find((u) => u.username === s.currentUser) || null; }
-    return null;
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const [prefs, setPrefsState] = useState(DEFAULT_PREFS);
+  const [fs, setFsState] = useState(makeDefaultFS("user"));
+  const [desktopLayout, setDesktopLayoutState] = useState({});
 
-  const [prefs, setPrefsState] = useState(() => {
-    if (!currentUser) return { theme: "dark", wallpaper: "mesh", iconSize: "medium" };
-    return Storage.getPrefs(currentUser.username) || { theme: "dark", wallpaper: "mesh", iconSize: "medium" };
-  });
-
-  const [fs, setFsState] = useState(() => {
-    if (!currentUser) return makeDefaultFS("user");
-    return Storage.getFS(currentUser.username) || makeDefaultFS(currentUser.username);
-  });
-
-  const [desktopLayout, setDesktopLayoutState] = useState(() => {
-    if (!currentUser) return {};
-    return Storage.getDesktopLayout(currentUser.username) || {};
-  });
-
-  const [cwd, setCwd] = useState(() => currentUser ? "/home/" + currentUser.username : "/");
+  const [cwd, setCwd] = useState("/");
   const [windows, setWindows] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [contextMenu, setContextMenu] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showLaunchpad, setShowLaunchpad] = useState(false);
   const [clipboardVal, setClipboardVal] = useClipboard();
+  const [authReady, setAuthReady] = useState(false);
+
+  const applyUserData = useCallback((user) => {
+    if (!user) return;
+    setCurrentUser(user);
+    setPrefsState(user.prefs || DEFAULT_PREFS);
+    setFsState(user.fs || makeDefaultFS(user.username));
+    setDesktopLayoutState(user.desktopLayout || {});
+    setCwd("/home/" + user.username);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const bootstrapSession = async () => {
+      const session = Storage.getSession();
+      if (!session?.currentUser) {
+        if (!cancelled) setAuthReady(true);
+        return;
+      }
+
+      try {
+        const result = await Storage.getUser(session.currentUser);
+        if (!cancelled && result?.user) {
+          applyUserData(result.user);
+        } else {
+          Storage.clearSession();
+        }
+      } catch {
+        Storage.clearSession();
+      } finally {
+        if (!cancelled) setAuthReady(true);
+      }
+    };
+
+    bootstrapSession();
+    return () => { cancelled = true; };
+  }, [applyUserData]);
 
   useEffect(() => {
     const vars = THEMES[prefs.theme] || THEMES.dark;
     Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
   }, [prefs.theme]);
 
-  const setFs = useCallback((newFs) => { setFsState(newFs); if (currentUser) Storage.saveFS(currentUser.username, newFs); }, [currentUser]);
-  const setPrefs = useCallback((newPrefs) => { setPrefsState(newPrefs); if (currentUser) Storage.savePrefs(currentUser.username, newPrefs); }, [currentUser]);
-  const setDesktopLayout = useCallback((l) => { setDesktopLayoutState(l); if (currentUser) Storage.saveDesktopLayout(currentUser.username, l); }, [currentUser]);
+  const setFs = useCallback((newFs) => { setFsState(newFs); if (currentUser) void Storage.updateUser(currentUser.username, { fs: newFs }); }, [currentUser]);
+  const setPrefs = useCallback((newPrefs) => { setPrefsState(newPrefs); if (currentUser) void Storage.updateUser(currentUser.username, { prefs: newPrefs }); }, [currentUser]);
+  const setDesktopLayout = useCallback((layout) => { setDesktopLayoutState(layout); if (currentUser) void Storage.updateUser(currentUser.username, { desktopLayout: layout }); }, [currentUser]);
 
   const notify = useCallback(({ icon, title, message }) => {
     const id = Date.now();
@@ -161,13 +184,14 @@ export default function VirtualOS() {
   // Get list of currently open app IDs for dock indicator
   const openAppIds = windows.filter((w) => !w.minimized).map((w) => w.appId);
 
-  const handleLogout = () => { Storage.clearSession(); setCurrentUser(null); setWindows([]); };
+  const handleLogout = () => { Storage.clearSession(); setCurrentUser(null); setWindows([]); setPrefsState(DEFAULT_PREFS); setFsState(makeDefaultFS("user")); setDesktopLayoutState({}); setCwd("/"); };
   const handleLogin = (user) => {
-    setCurrentUser(user);
-    setPrefsState(Storage.getPrefs(user.username) || { theme: "dark", wallpaper: "mesh", iconSize: "medium" });
-    setFsState(Storage.getFS(user.username) || makeDefaultFS(user.username));
-    setDesktopLayoutState(Storage.getDesktopLayout(user.username) || {});
-    setCwd("/home/" + user.username);
+    applyUserData(user);
+    Storage.saveSession({ currentUser: user.username, loginTime: Date.now() });
+  };
+  const handleAccountChanged = (user) => {
+    applyUserData(user);
+    Storage.saveSession({ currentUser: user.username, loginTime: Date.now() });
   };
 
   const handleDesktopRightClick = (e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY }); };
@@ -209,6 +233,8 @@ export default function VirtualOS() {
     return true;
   }, [currentUser, fs, setFs]);
 
+  if (!authReady) return <div style={{ width: "100vw", height: "100vh", background: "#0b1020", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading VirtualOS…</div>;
+
   if (!currentUser) return <LoginScreen onLogin={handleLogin} />;
 
   const activeWindow = [...windows].sort((a, b) => b.zIndex - a.zIndex)[0];
@@ -220,7 +246,7 @@ export default function VirtualOS() {
     music: (win) => <Music winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} />, 
     browser: (win) => <Browser winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} initialUrl={win.appState?.initialUrl || "https://www.google.com"} />, 
     assistant: (win) => <Assistant winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} currentUser={currentUser} cwd={cwd} fs={fs} onOpenApp={openApp} onOpenFile={openFile} createFileAtPath={createFileAtPath} createFolderAtPath={createFolderAtPath} notify={notify} />, 
-    settings: <Settings prefs={prefs} setPrefs={setPrefs} currentUser={currentUser} notify={notify} />,
+    settings: <Settings prefs={prefs} setPrefs={setPrefs} currentUser={currentUser} notify={notify} onAccountChanged={handleAccountChanged} />,
   };
 
   return (
