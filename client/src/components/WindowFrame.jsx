@@ -30,11 +30,20 @@ export function WindowFrame({ win, onClose, onMinimize, onMaximize, onFocus, onU
     document.addEventListener("mouseup", onUp);
   };
 
-  if (win.minimized) return null;
+  if (win.minimized) {
+    if (win.appId === "music") {
+      return (
+        <div aria-hidden="true" style={{ position: "fixed", left: -99999, top: -99999, width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}>
+          {children}
+        </div>
+      );
+    }
+    return null;
+  }
   const isMax = win.maximized;
   const wStyle = isMax
-    ? { position: "fixed", left: 0, top: 24, width: "100vw", height: "calc(100vh - 24px)", zIndex: win.zIndex }
-    : { position: "absolute", left: win.x, top: win.y, width: win.width, height: win.height, zIndex: win.zIndex };
+    ? { position: "fixed", left: 0, top: 24, width: "100vw", height: "calc(100vh - 24px)", zIndex: 3000 + win.zIndex }
+    : { position: "absolute", left: win.x, top: win.y, width: win.width, height: win.height, zIndex: 1000 + win.zIndex };
 
   return (
     <div style={{ ...wStyle, background: "var(--bg-window)", border: "1px solid " + (isActive ? "var(--border-strong)" : "var(--border)"), borderRadius: isMax ? 0 : 12, overflow: "hidden", boxShadow: isActive ? "var(--shadow)" : "var(--shadow-sm)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column" }}

@@ -73,8 +73,8 @@ function ContextMenu({ x, y, options, onClose }) {
   );
 }
 
-export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initialPath }) {
-  const [path, setPath] = useState(initialPath || "/home/" + currentUser.username);
+export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initialPath, winId, appState = {}, updateAppState }) {
+  const [path, setPath] = useState(appState.currentPath || appState.initialPath || initialPath || "/home/" + currentUser.username);
   const [selected, setSelected] = useState(new Set());
   const [contextMenu, setContextMenu] = useState(null);
   const items = listDir(fs, path);
@@ -114,6 +114,21 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
   };
 
   const handleContainerClick = () => setSelected(new Set());
+
+  // Sync state back to window manager
+  useEffect(() => {
+    if (updateAppState && winId) {
+      updateAppState(winId, { currentPath: path, selectedFiles: Array.from(selected) });
+    }
+  }, [path, selected, winId, updateAppState]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !updateAppState || !winId) return;
+    const onScroll = () => updateAppState(winId, { scrollPosition: el.scrollTop });
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [containerRef, winId, updateAppState]);
 
   const handlePointerDown = (e) => {
     if (e.target.closest('.file-item')) return;

@@ -16,8 +16,11 @@ import { Terminal } from "./apps/Terminal";
 import { FileExplorer } from "./apps/FileExplorer";
 import { TextEditor } from "./apps/TextEditor";
 import { Settings } from "./apps/Settings";
+import { Music } from "./apps/Music";
+import { Browser } from "./apps/Browser";
 import { SearchModal } from "./components/SearchModal";
 import { ContextMenu } from "./components/ContextMenu";
+import { Launchpad } from "./components/Launchpad";
 
 let winIdCounter = 1;
 
@@ -50,6 +53,7 @@ export default function VirtualOS() {
   const [notifications, setNotifications] = useState([]);
   const [contextMenu, setContextMenu] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
+  const [showLaunchpad, setShowLaunchpad] = useState(false);
   const [clipboardVal, setClipboardVal] = useClipboard();
 
   useEffect(() => {
@@ -82,12 +86,24 @@ export default function VirtualOS() {
   }, [windows]);
 
   const openApp = useCallback((appId, extra = {}) => {
-    const existing = windows.find((w) => w.appId === appId && !extra.forceNew);
-    if (existing) { setWindows((ws) => ws.map((w) => w.id === existing.id ? { ...w, minimized: false, zIndex: winIdCounter++ } : w)); return; }
+    if (appId === "launchpad") {
+      setShowLaunchpad((value) => !value);
+      return;
+    }
+    const existing = windows.find((w) => w.appId === appId && !extra.forceNew && !w.minimized);
+    const minimizedExists = windows.find((w) => w.appId === appId && w.minimized);
+    if (minimizedExists) {
+      // Restore all minimized windows for this app
+      setWindows((ws) => ws.map((w) => w.appId === appId && w.minimized ? { ...w, minimized: false, zIndex: winIdCounter++ } : w));
+      return;
+    }
+    if (existing) { setWindows((ws) => ws.map((w) => w.id === existing.id ? { ...w, zIndex: winIdCounter++ } : w)); return; }
     const configs = {
       terminal: { title: "Terminal", width: 620, height: 400 },
       files: { title: "File Explorer", width: 700, height: 480 },
       editor: { title: extra.filename || "Text Editor", width: 560, height: 440 },
+      music: { title: "Music", width: 520, height: 380 },
+      browser: { title: "Browser", width: 980, height: 640 },
       settings: { title: "Settings", width: 580, height: 460 },
     };
     const cfg = configs[appId] || { title: appId, width: 500, height: 380 };
@@ -97,20 +113,48 @@ export default function VirtualOS() {
 
   const openFile = useCallback((path, content, filename) => {
     const id = winIdCounter++;
-    setWindows((ws) => [...ws, { id, appId: "editor", title: filename, width: 560, height: 440, x: 100 + (id % 5) * 25, y: 60 + (id % 4) * 25, zIndex: winIdCounter++, minimized: false, maximized: false, initialPath: path, initialContent: content }]);
+    setWindows((ws) => [...ws, { id, appId: "editor", title: filename, width: 560, height: 440, x: 100 + (id % 5) * 25, y: 60 + (id % 4) * 25, zIndex: winIdCounter++, minimized: false, maximized: false, appState: { initialPath: path }, initialContent: content }]);
   }, []);
 
   const openFolder = useCallback((path, name) => {
     const id = winIdCounter++;
-    setWindows((ws) => [...ws, { id, appId: "files", title: name, width: 700, height: 480, x: 120 + (id % 5) * 25, y: 70 + (id % 4) * 25, zIndex: winIdCounter++, minimized: false, maximized: false, initialPath: path }]);
+    setWindows((ws) => [...ws, { id, appId: "files", title: name, width: 700, height: 480, x: 120 + (id % 5) * 25, y: 70 + (id % 4) * 25, zIndex: winIdCounter++, minimized: false, maximized: false, appState: { currentPath: path } }]);
   }, [windows]);
 
   const closeWindow = (id) => setWindows((ws) => ws.filter((w) => w.id !== id));
-  const minimizeWindow = (id) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, minimized: true } : w));
+  const minimizeWindow = (id) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, minimized: true, minimizedAt: Date.now() } : w));
   const maximizeWindow = (id) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, maximized: !w.maximized } : w));
   const focusWindow = (id) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, zIndex: winIdCounter++ } : w));
   const updateWindowPos = (id, x, y) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, x, y } : w));
   const updateWindowSize = (id, width, height) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, width, height } : w));
+
+  const restoreWindow = (id) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, minimized: false, zIndex: winIdCounter++ } : w));
+  const restoreAllMinimized = (appId) => setWindows((ws) => ws.map((w) => w.appId === appId && w.minimized ? { ...w, minimized: false, zIndex: winIdCounter++ } : w));
+
+  const updateWindowAppState = (id, patch) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, appState: { ...(w.appState || {}), ...patch } } : w));
+
+  // Dock click behavior: if app has visible windows, minimize them; if only minimized, restore the most-recently-minimized; otherwise open app
+  const onDockClick = (appId) => {
+    if (appId === "launchpad") {
+      setShowLaunchpad((value) => !value);
+      return;
+    }
+    const openInstances = windows.filter((w) => w.appId === appId && !w.minimized);
+    const minimizedInstances = windows.filter((w) => w.appId === appId && w.minimized);
+    if (openInstances.length > 0) {
+      // minimize all open instances
+      setWindows((ws) => ws.map((w) => (w.appId === appId && !w.minimized) ? { ...w, minimized: true, minimizedAt: Date.now() } : w));
+      return;
+    }
+    if (minimizedInstances.length > 0) {
+      // restore the most recently minimized instance
+      const latest = [...minimizedInstances].sort((a, b) => (b.minimizedAt || 0) - (a.minimizedAt || 0))[0];
+      if (latest) restoreWindow(latest.id);
+      return;
+    }
+    // no instances -> open app
+    openApp(appId);
+  };
 
   // Get list of currently open app IDs for dock indicator
   const openAppIds = windows.filter((w) => !w.minimized).map((w) => w.appId);
@@ -157,8 +201,10 @@ export default function VirtualOS() {
 
   const appMap = {
     terminal: <Terminal fs={fs} setFs={setFs} cwd={cwd} setCwd={setCwd} currentUser={currentUser} notify={notify} onCopy={setClipboardVal} />,
-    files: (win) => <FileExplorer fs={fs} setFs={setFs} onOpenFile={openFile} currentUser={currentUser} notify={notify} initialPath={win.initialPath} />,
-    editor: (win) => <TextEditor initialPath={win.initialPath} initialContent={win.initialContent} fs={fs} setFs={setFs} notify={notify} onCopy={setClipboardVal} />,
+    files: (win) => <FileExplorer fs={fs} setFs={setFs} onOpenFile={openFile} currentUser={currentUser} notify={notify} winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} initialPath={win.appState?.currentPath || win.appState?.initialPath} />,
+    editor: (win) => <TextEditor initialPath={win.appState?.initialPath || win.initialPath} initialContent={win.initialContent} fs={fs} setFs={setFs} notify={notify} onCopy={setClipboardVal} />,
+    music: (win) => <Music winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} />, 
+    browser: (win) => <Browser winId={win.id} appState={win.appState} updateAppState={updateWindowAppState} initialUrl={win.appState?.initialUrl || "https://www.google.com"} />, 
     settings: <Settings prefs={prefs} setPrefs={setPrefs} currentUser={currentUser} notify={notify} />,
   };
 
@@ -189,8 +235,9 @@ export default function VirtualOS() {
           </WindowFrame>
         ))}
       </main>
-      <Dock onOpen={openApp} openAppIds={openAppIds} />
+      <Dock onOpen={openApp} windows={windows} onFocusWindow={focusWindow} restoreWindow={restoreWindow} restoreAllMinimized={restoreAllMinimized} onDockClick={onDockClick} />
       <NotificationSystem notifications={notifications} />
+      <Launchpad visible={showLaunchpad} onClose={() => setShowLaunchpad(false)} onOpenApp={openApp} />
       {contextMenu && <ContextMenu {...contextMenu} onClose={closeContextMenu} onNewFile={handleNewFile} onNewFolder={handleNewFolder} onToggleTheme={() => setPrefs({ ...prefs, theme: prefs.theme === "dark" ? "light" : "dark" })} theme={prefs.theme} />}
       {showSearch && <SearchModal fs={fs} onClose={() => setShowSearch(false)} onOpenApp={openApp} onOpenFile={openFile} />}
     </div>

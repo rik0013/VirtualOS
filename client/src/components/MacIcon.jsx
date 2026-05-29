@@ -136,6 +136,69 @@ export const MacIcon = ({ type, size = 52, color = "currentColor", ...props }) =
           </defs>
         </svg>
       )}
+      {type === "launchpad" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="launchBgShared" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#c4b5fd" />
+              <stop offset="1" stopColor="#6366f1" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#launchBgShared)" />
+          <rect x="24" y="24" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="44" y="24" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="64" y="24" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="24" y="44" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="44" y="44" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="64" y="44" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="24" y="64" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="44" y="64" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="64" y="64" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+        </svg>
+      )}
+      {type === "music" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="musicBg" x1="20" y1="15" x2="80" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ff9a3c" />
+              <stop offset="1" stopColor="#d9480f" />
+            </linearGradient>
+            <linearGradient id="musicDisc" x1="35" y1="28" x2="70" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" stopOpacity="0.95" />
+              <stop offset="1" stopColor="#f3f4f6" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="20" fill="url(#musicBg)" />
+          <circle cx="50" cy="50" r="24" fill="url(#musicDisc)" opacity="0.95" />
+          <circle cx="50" cy="50" r="6" fill="#d9480f" />
+          <path d="M56 26v28.5c0 4.2-3.8 7.5-8.5 7.5s-8.5-3.3-8.5-7.5 3.8-7.5 8.5-7.5c1.8 0 3.4.4 4.8 1.1V32l18-4v10.5" stroke="#7c2d12" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M70 26l-14 4" stroke="#7c2d12" strokeWidth="5" strokeLinecap="round" />
+        </svg>
+      )}
+      {type === "browser" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="browserBg" x1="15" y1="10" x2="85" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#6ea8ff" />
+              <stop offset="1" stopColor="#2457d6" />
+            </linearGradient>
+            <linearGradient id="browserGlass" x1="35" y1="30" x2="70" y2="70" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" stopOpacity="0.95" />
+              <stop offset="1" stopColor="#dbeafe" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="20" fill="url(#browserBg)" />
+          <rect x="18" y="24" width="64" height="50" rx="10" fill="url(#browserGlass)" stroke="#1e3a8a" strokeWidth="3" />
+          <rect x="18" y="24" width="64" height="12" rx="10" fill="#dbeafe" />
+          <circle cx="27" cy="30" r="2.8" fill="#ef4444" />
+          <circle cx="35" cy="30" r="2.8" fill="#f59e0b" />
+          <circle cx="43" cy="30" r="2.8" fill="#22c55e" />
+          <circle cx="50" cy="49" r="15" fill="none" stroke="#2457d6" strokeWidth="4" />
+          <path d="M50 34c-4 4-6 9-6 15s2 11 6 15c4-4 6-9 6-15s-2-11-6-15Z" fill="#2457d6" opacity="0.85" />
+          <path d="M35 49h30" stroke="#2457d6" strokeWidth="4" strokeLinecap="round" />
+          <path d="M50 34v30" stroke="#2457d6" strokeWidth="4" strokeLinecap="round" opacity="0.7" />
+        </svg>
+      )}
       {type === "trash" && (
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           <path d="M30 30l5 55c0 5 5 5 15 5h0c10 0 15 0 15-5l5-55H30z" fill="url(#trashGrad)" stroke="#999" strokeWidth="3" strokeLinejoin="round"/>

@@ -38,7 +38,7 @@ export function SearchModal({ fs, onClose, onOpenApp, onOpenFile }) {
               <div style={{ padding: "4px 18px 6px", fontSize: 10, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Apps</div>
               {appResults.map((a) => (
                 <button key={a.id} onClick={() => { onOpenApp(a.id); onClose(); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "8px 18px", background: "transparent", textAlign: "left" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-hover)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                  <span style={{ fontSize: 20 }}>{a.icon}</span>
+                  <MacIcon type={a.icon} size={20} />
                   <span style={{ fontSize: 13, color: "var(--text-primary)" }}>{a.label}</span>
                 </button>
               ))}

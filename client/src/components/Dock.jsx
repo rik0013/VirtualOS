@@ -3,9 +3,12 @@ import { Terminal } from "../apps/Terminal";
 import { Settings } from "../apps/Settings";
 
 export const DOCK_APPS = [
+  { id: "launchpad", icon: "launchpad", label: "Launchpad" },
   { id: "terminal", icon: "terminal", label: "Terminal" },
   { id: "files", icon: "finder", label: "Files" },
   { id: "editor", icon: "editor", label: "Editor" },
+  { id: "music", icon: "music", label: "Music" },
+  { id: "browser", icon: "browser", label: "Browser" },
   { id: "settings", icon: "settings", label: "Settings" },
 ];
 
@@ -140,12 +143,76 @@ export const MacIcon = ({ type, size = 52, ...props }) => {
           </defs>
         </svg>
       )}
+      {type === "launchpad" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="launchBg" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#c4b5fd" />
+              <stop offset="1" stopColor="#6366f1" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#launchBg)" />
+          <rect x="24" y="24" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="44" y="24" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="64" y="24" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="24" y="44" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="44" y="44" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="64" y="44" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="24" y="64" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="44" y="64" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+          <rect x="64" y="64" width="12" height="12" rx="4" fill="rgba(255,255,255,0.95)" />
+        </svg>
+      )}
+      {type === "music" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="dockMusicBg" x1="20" y1="15" x2="80" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ff9a3c" />
+              <stop offset="1" stopColor="#d9480f" />
+            </linearGradient>
+            <linearGradient id="dockMusicDisc" x1="35" y1="28" x2="70" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" stopOpacity="0.95" />
+              <stop offset="1" stopColor="#f3f4f6" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="20" fill="url(#dockMusicBg)" />
+          <circle cx="50" cy="50" r="24" fill="url(#dockMusicDisc)" opacity="0.95" />
+          <circle cx="50" cy="50" r="6" fill="#d9480f" />
+          <path d="M56 26v28.5c0 4.2-3.8 7.5-8.5 7.5s-8.5-3.3-8.5-7.5 3.8-7.5 8.5-7.5c1.8 0 3.4.4 4.8 1.1V32l18-4v10.5" stroke="#7c2d12" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M70 26l-14 4" stroke="#7c2d12" strokeWidth="5" strokeLinecap="round" />
+        </svg>
+      )}
+      {type === "browser" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="dockBrowserBg" x1="15" y1="10" x2="85" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#6ea8ff" />
+              <stop offset="1" stopColor="#2457d6" />
+            </linearGradient>
+            <linearGradient id="dockBrowserGlass" x1="35" y1="30" x2="70" y2="70" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" stopOpacity="0.95" />
+              <stop offset="1" stopColor="#dbeafe" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="20" fill="url(#dockBrowserBg)" />
+          <rect x="18" y="24" width="64" height="50" rx="10" fill="url(#dockBrowserGlass)" stroke="#1e3a8a" strokeWidth="3" />
+          <rect x="18" y="24" width="64" height="12" rx="10" fill="#dbeafe" />
+          <circle cx="27" cy="30" r="2.8" fill="#ef4444" />
+          <circle cx="35" cy="30" r="2.8" fill="#f59e0b" />
+          <circle cx="43" cy="30" r="2.8" fill="#22c55e" />
+          <circle cx="50" cy="49" r="15" fill="none" stroke="#2457d6" strokeWidth="4" />
+          <path d="M50 34c-4 4-6 9-6 15s2 11 6 15c4-4 6-9 6-15s-2-11-6-15Z" fill="#2457d6" opacity="0.85" />
+          <path d="M35 49h30" stroke="#2457d6" strokeWidth="4" strokeLinecap="round" />
+          <path d="M50 34v30" stroke="#2457d6" strokeWidth="4" strokeLinecap="round" opacity="0.7" />
+        </svg>
+      )}
     </div>
   );
 };
 
-export function Dock({ onOpen, openAppIds = [] }) {
+export function Dock({ onOpen, windows = [], onFocusWindow, restoreWindow, restoreAllMinimized, onDockClick }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoverPreview, setHoverPreview] = useState(null);
 
   const getScale = (idx) => {
     if (hoveredIndex === null) return 1;
@@ -180,12 +247,15 @@ export function Dock({ onOpen, openAppIds = [] }) {
       {DOCK_APPS.map((app, idx) => {
         const scale = getScale(idx);
         const size = Math.round(46 * scale);
-        const isOpen = openAppIds.includes(app.id);
+        const openInstances = windows.filter(w => w.appId === app.id && !w.minimized);
+        const minimizedInstances = windows.filter(w => w.appId === app.id && w.minimized);
+        const isOpen = openInstances.length > 0 || minimizedInstances.length > 0;
         
         return (
-          <div key={app.id} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div key={app.id} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}
+            onMouseEnter={() => { if (minimizedInstances.length > 0) setHoverPreview(app.id); }} onMouseLeave={() => setHoverPreview(null)}>
             <button 
-              onClick={() => onOpen(app.id)} 
+              onClick={() => { if (typeof onDockClick === 'function') onDockClick(app.id); else onOpen(app.id); }} 
               onMouseEnter={() => setHoveredIndex(idx)} 
               title={app.label}
               style={{ 
@@ -205,14 +275,26 @@ export function Dock({ onOpen, openAppIds = [] }) {
               <MacIcon type={app.icon} size={size} style={{ transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }} />
             </button>
             {isOpen && (
-              <div style={{ 
-                width: 4, 
-                height: 4, 
-                borderRadius: "50%", 
-                background: "var(--accent)", 
-                marginTop: 4,
-                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
-              }} />
+              <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
+                {openInstances.slice(0,4).map((_, i) => (
+                  <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 6px rgba(0,0,0,0.2)" }} />
+                ))}
+                {minimizedInstances.slice(0,4).map((_, i) => (
+                  <div key={i+openInstances.length} style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.25)", border: "1px solid rgba(0,0,0,0.08)" }} />
+                ))}
+                {(openInstances.length + minimizedInstances.length) > 4 && <div style={{ color: "var(--text-muted)", fontSize: 10, marginLeft: 4 }}>+{(openInstances.length + minimizedInstances.length)-4}</div>}
+              </div>
+            )}
+            {hoverPreview === app.id && minimizedInstances.length > 0 && (
+              <div style={{ position: "absolute", bottom: 70, left: "50%", transform: "translateX(-50%)", minWidth: 220, background: "rgba(0,0,0,0.8)", color: "#fff", padding: 8, borderRadius: 8, boxShadow: "0 12px 40px rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", zIndex: 2000 }}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>{app.label}</div>
+                {minimizedInstances.map((w) => (
+                  <div key={w.id} onClick={() => { restoreWindow(w.id); }} style={{ padding: 6, borderRadius: 6, cursor: "pointer", background: "transparent", marginBottom: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{w.title}</div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>{w.appState?.currentPath || w.appState?.initialPath || "—"}</div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         );
