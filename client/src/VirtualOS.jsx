@@ -112,6 +112,9 @@ export default function VirtualOS() {
   const updateWindowPos = (id, x, y) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, x, y } : w));
   const updateWindowSize = (id, width, height) => setWindows((ws) => ws.map((w) => w.id === id ? { ...w, width, height } : w));
 
+  // Get list of currently open app IDs for dock indicator
+  const openAppIds = windows.filter((w) => !w.minimized).map((w) => w.appId);
+
   const handleLogout = () => { Storage.clearSession(); setCurrentUser(null); setWindows([]); };
   const handleLogin = (user) => {
     setCurrentUser(user);
@@ -163,7 +166,13 @@ export default function VirtualOS() {
     <div style={{ width: "100vw", height: "100vh", background: prefs.customWallpaper ? `url(${prefs.customWallpaper}) center / cover no-repeat` : (WALLPAPERS[prefs.wallpaper] || WALLPAPERS.catalina), overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <GlobalStyle />
       <Menubar activeApp={activeWindow?.title} currentUser={currentUser} onLogout={handleLogout} clipboardVal={clipboardVal} />
-      <main onContextMenu={handleDesktopRightClick} style={{ flex: 1, position: "relative" }}>
+      <main onClick={(e) => {
+        // Minimize all open windows when clicking on empty desktop area
+        if (e.target === e.currentTarget) {
+          const openWindows = windows.filter((w) => !w.minimized);
+          openWindows.forEach((win) => minimizeWindow(win.id));
+        }
+      }} onContextMenu={handleDesktopRightClick} style={{ flex: 1, position: "relative" }}>
         <DesktopIcons
           fs={fs}
           desktopPath={"/home/" + currentUser.username + "/desktop"}
@@ -180,7 +189,7 @@ export default function VirtualOS() {
           </WindowFrame>
         ))}
       </main>
-      <Dock onOpen={openApp} />
+      <Dock onOpen={openApp} openAppIds={openAppIds} />
       <NotificationSystem notifications={notifications} />
       {contextMenu && <ContextMenu {...contextMenu} onClose={closeContextMenu} onNewFile={handleNewFile} onNewFolder={handleNewFolder} onToggleTheme={() => setPrefs({ ...prefs, theme: prefs.theme === "dark" ? "light" : "dark" })} theme={prefs.theme} />}
       {showSearch && <SearchModal fs={fs} onClose={() => setShowSearch(false)} onOpenApp={openApp} onOpenFile={openFile} />}

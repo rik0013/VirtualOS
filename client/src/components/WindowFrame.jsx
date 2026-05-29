@@ -38,7 +38,7 @@ export function WindowFrame({ win, onClose, onMinimize, onMaximize, onFocus, onU
 
   return (
     <div style={{ ...wStyle, background: "var(--bg-window)", border: "1px solid " + (isActive ? "var(--border-strong)" : "var(--border)"), borderRadius: isMax ? 0 : 12, overflow: "hidden", boxShadow: isActive ? "var(--shadow)" : "var(--shadow-sm)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column" }}
-      className="window-open" onMouseDown={() => onFocus(win.id)}>
+      className="window-open" onClick={(e) => { e.stopPropagation(); onFocus(win.id); }} onMouseDown={() => onFocus(win.id)}>
       <div onMouseDown={handleTitleMouseDown} style={{ height: 36, background: "var(--bg-titlebar)", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", padding: "0 12px", gap: 8, cursor: "default", flexShrink: 0 }}>
         <div style={{ display: "flex", gap: 6 }} data-nodrag>
           <button onClick={() => onClose(win.id)} style={{ width: 12, height: 12, borderRadius: "50%", background: "#fc8181" }} />

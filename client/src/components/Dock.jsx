@@ -144,7 +144,7 @@ export const MacIcon = ({ type, size = 52, ...props }) => {
   );
 };
 
-export function Dock({ onOpen }) {
+export function Dock({ onOpen, openAppIds = [] }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const getScale = (idx) => {
@@ -180,29 +180,41 @@ export function Dock({ onOpen }) {
       {DOCK_APPS.map((app, idx) => {
         const scale = getScale(idx);
         const size = Math.round(46 * scale);
+        const isOpen = openAppIds.includes(app.id);
         
         return (
-          <button 
-            key={app.id} 
-            onClick={() => onOpen(app.id)} 
-            onMouseEnter={() => setHoveredIndex(idx)} 
-            title={app.label}
-            style={{ 
-              width: size, 
-              height: size, 
-              borderRadius: 12, 
-              background: "transparent", 
-              border: "none", 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center", 
-              transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", 
-              transform: `translateY(${-((scale - 1) * 12)}px)`,
-              cursor: "pointer",
-              outline: "none"
-            }}>
-            <MacIcon type={app.icon} size={size} style={{ transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }} />
-          </button>
+          <div key={app.id} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <button 
+              onClick={() => onOpen(app.id)} 
+              onMouseEnter={() => setHoveredIndex(idx)} 
+              title={app.label}
+              style={{ 
+                width: size, 
+                height: size, 
+                borderRadius: 12, 
+                background: "transparent", 
+                border: "none", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center", 
+                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)", 
+                transform: `translateY(${-((scale - 1) * 12)}px)`,
+                cursor: "pointer",
+                outline: "none"
+              }}>
+              <MacIcon type={app.icon} size={size} style={{ transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }} />
+            </button>
+            {isOpen && (
+              <div style={{ 
+                width: 4, 
+                height: 4, 
+                borderRadius: "50%", 
+                background: "var(--accent)", 
+                marginTop: 4,
+                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+              }} />
+            )}
+          </div>
         );
       })}
     </div>

@@ -54,10 +54,27 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
   const startRename = (item) => { setRenamingItem(item.name); setRenameVal(item.name); setCtxMenu(null); };
 
   useEffect(() => {
-    const handler = () => { setSelected(null); setCtxMenu(null); };
-    window.addEventListener("click", handler);
-    return () => window.removeEventListener("click", handler);
-  }, []);
+    const handler = (e) => { 
+      if (e.key === "Delete" && selected) {
+        const itemToDelete = items.find(i => i.name === selected);
+        if (itemToDelete) {
+          onDelete(itemToDelete.name);
+          setSelected(null);
+        }
+      }
+      if (e.key === "Escape") { 
+        setSelected(null); 
+        setCtxMenu(null); 
+      }
+    };
+    const clickHandler = () => { setSelected(null); setCtxMenu(null); };
+    window.addEventListener("keydown", handler);
+    window.addEventListener("click", clickHandler);
+    return () => { 
+      window.removeEventListener("keydown", handler);
+      window.removeEventListener("click", clickHandler);
+    };
+  }, [selected, items, onDelete]);
 
   return (
     <>
@@ -66,7 +83,7 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
         const isSelected = selected === item.name;
         return (
           <div key={item.name}
-            onMouseDown={(e) => startDrag(e, item.name)}
+            onMouseDown={(e) => { e.stopPropagation(); startDrag(e, item.name); }}
             onClick={(e) => { e.stopPropagation(); setSelected(item.name); }}
             onDoubleClick={() => handleDblClick(item)}
             onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setCtxMenu({ x: e.clientX, y: e.clientY, item }); setSelected(item.name); }}
@@ -119,15 +136,15 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
         );
       })}
       {ctxMenu && (
-        <div onClick={(e) => e.stopPropagation()} style={{ position: "fixed", left: ctxMenu.x, top: ctxMenu.y, zIndex: 4000, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 10, overflow: "hidden", boxShadow: "var(--shadow)", minWidth: 160, animation: "fadeIn 0.12s ease" }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ position: "fixed", left: ctxMenu.x, top: ctxMenu.y, zIndex: 4000, background: "var(--bg-context)", border: "1px solid var(--border-strong)", borderRadius: 10, overflow: "hidden", boxShadow: "var(--shadow)", minWidth: 180, animation: "fadeIn 0.12s ease" }}>
           {[
-            { label: ctxMenu.item.isDir ? "Open Folder" : "Open", icon: "open", action: () => { handleDblClick(ctxMenu.item); setCtxMenu(null); } },
-            { label: "Rename", icon: "rename", action: () => startRename(ctxMenu.item) },
+            { label: ctxMenu.item.isDir ? "Open Folder" : "Open", emoji: "📂", action: () => { handleDblClick(ctxMenu.item); setCtxMenu(null); } },
+            { label: "Rename", emoji: "✏️", action: () => startRename(ctxMenu.item) },
             { divider: true },
-            { label: "Delete", icon: "trash", action: () => { onDelete(ctxMenu.item.name); setCtxMenu(null); } },
+            { label: "Delete", emoji: "🗑️", action: () => { onDelete(ctxMenu.item.name); setCtxMenu(null); }, danger: true },
           ].map((it, i) => it.divider
             ? <div key={i} style={{ height: 1, background: "var(--border)", margin: "3px 0" }} />
-            : <button key={i} onClick={it.action} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "8px 14px", fontSize: 13, color: "var(--text-primary)", background: "transparent", textAlign: "left" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-hover)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}><span>{it.icon}</span>{it.label}</button>
+            : <button key={i} onClick={it.action} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "8px 14px", fontSize: 13, color: it.danger ? "var(--accent-red)" : "var(--text-primary)", background: "transparent", textAlign: "left", cursor: "pointer", border: "none" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-hover)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}><span style={{ fontSize: 16 }}>{it.emoji}</span>{it.label}</button>
           )}
         </div>
       )}
