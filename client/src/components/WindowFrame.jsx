@@ -3,6 +3,8 @@ import React, { useRef } from "react";
 export function WindowFrame({ win, onClose, onMinimize, onMaximize, onFocus, onUpdatePos, onUpdateSize, children, isActive }) {
   const dragRef = useRef(null);
   const resizeRef = useRef(null);
+  const minWidth = 320;
+  const minHeight = 200;
 
   const handleTitleMouseDown = (e) => {
     onFocus(win.id);
@@ -21,11 +23,55 @@ export function WindowFrame({ win, onClose, onMinimize, onMaximize, onFocus, onU
     document.addEventListener("mouseup", onUp);
   };
 
-  const handleResizeDown = (e) => {
+  const handleResizeDown = (direction, e) => {
+    e.preventDefault();
     e.stopPropagation();
-    resizeRef.current = { startX: e.clientX, startY: e.clientY, w: win.width, h: win.height };
-    const onMove = (ev) => { onUpdateSize(win.id, Math.max(320, resizeRef.current.w + ev.clientX - resizeRef.current.startX), Math.max(200, resizeRef.current.h + ev.clientY - resizeRef.current.startY)); };
-    const onUp = () => { resizeRef.current = null; document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+    resizeRef.current = {
+      direction,
+      startX: e.clientX,
+      startY: e.clientY,
+      startLeft: win.x,
+      startTop: win.y,
+      startWidth: win.width,
+      startHeight: win.height,
+    };
+
+    const onMove = (ev) => {
+      const state = resizeRef.current;
+      if (!state) return;
+
+      const deltaX = ev.clientX - state.startX;
+      const deltaY = ev.clientY - state.startY;
+
+      let nextLeft = state.startLeft;
+      let nextTop = state.startTop;
+      let nextWidth = state.startWidth;
+      let nextHeight = state.startHeight;
+
+      if (state.direction.includes("e")) nextWidth = Math.max(minWidth, state.startWidth + deltaX);
+      if (state.direction.includes("s")) nextHeight = Math.max(minHeight, state.startHeight + deltaY);
+      if (state.direction.includes("w")) {
+        nextWidth = Math.max(minWidth, state.startWidth - deltaX);
+        nextLeft = state.startLeft + (state.startWidth - nextWidth);
+      }
+      if (state.direction.includes("n")) {
+        nextHeight = Math.max(minHeight, state.startHeight - deltaY);
+        nextTop = state.startTop + (state.startHeight - nextHeight);
+      }
+
+      nextLeft = Math.max(0, Math.min(nextLeft, window.innerWidth - nextWidth));
+      nextTop = Math.max(0, nextTop);
+
+      onUpdatePos(win.id, nextLeft, nextTop);
+      onUpdateSize(win.id, nextWidth, nextHeight);
+    };
+
+    const onUp = () => {
+      resizeRef.current = null;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
   };
@@ -57,7 +103,18 @@ export function WindowFrame({ win, onClose, onMinimize, onMaximize, onFocus, onU
         <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginLeft: 8, pointerEvents: "none" }}>{win.title}</span>
       </div>
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>{children}</div>
-      {!isMax && <div onMouseDown={handleResizeDown} style={{ position: "absolute", bottom: 0, right: 0, width: 14, height: 14, cursor: "se-resize" }} />}
+      {!isMax && (
+        <>
+          <div onMouseDown={(e) => handleResizeDown("nw", e)} style={{ position: "absolute", top: 0, left: 0, width: 10, height: 10, cursor: "nw-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("n", e)} style={{ position: "absolute", top: 0, left: 10, right: 10, height: 6, cursor: "n-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("ne", e)} style={{ position: "absolute", top: 0, right: 0, width: 10, height: 10, cursor: "ne-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("w", e)} style={{ position: "absolute", top: 10, left: 0, bottom: 10, width: 6, cursor: "w-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("e", e)} style={{ position: "absolute", top: 10, right: 0, bottom: 10, width: 6, cursor: "e-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("sw", e)} style={{ position: "absolute", bottom: 0, left: 0, width: 10, height: 10, cursor: "sw-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("s", e)} style={{ position: "absolute", left: 10, right: 10, bottom: 0, height: 6, cursor: "s-resize" }} />
+          <div onMouseDown={(e) => handleResizeDown("se", e)} style={{ position: "absolute", bottom: 0, right: 0, width: 14, height: 14, cursor: "se-resize" }} />
+        </>
+      )}
     </div>
   );
 }

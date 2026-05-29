@@ -111,24 +111,6 @@ export const MacIcon = ({ type, size = 52, ...props }) => {
           <path d="M30 45h40M30 55h40M30 65h30" stroke="#CCC" strokeWidth="3" strokeLinecap="round"/>
         </svg>
       )}
-      {type === "settings" && (
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#bgGradSet)" stroke="#B3B3B3" strokeWidth="1"/>
-          <circle cx="50" cy="50" r="30" fill="url(#gearLayer)" stroke="#7A7A7A" strokeWidth="3"/>
-          <circle cx="50" cy="50" r="14" fill="#3D3D3D" stroke="#222" strokeWidth="2"/>
-          <path d="M44 20h12v12H44zM44 68h12v12H44zM20 44h12v12H20zM68 44h12v12H68zM26 26l8 8-8 8z" fill="#AAA"/>
-          <defs>
-            <linearGradient id="bgGradSet" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#F5F5F5"/>
-              <stop offset="1" stopColor="#D4D4D4"/>
-            </linearGradient>
-            <linearGradient id="gearLayer" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#B5B5B5"/>
-              <stop offset="1" stopColor="#7E7E7E"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      )}
       {type === "editor" && (
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           <rect x="15" y="10" width="70" height="80" rx="5" fill="#FFF" stroke="#CCC" strokeWidth="2"/>
@@ -142,30 +124,6 @@ export const MacIcon = ({ type, size = 52, ...props }) => {
               <stop offset="1" stopColor="#F29813"/>
             </linearGradient>
           </defs>
-        </svg>
-      )}
-      {type === "settings" && (
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <linearGradient id="dockSettingsBg" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#f3f4f6" />
-              <stop offset="1" stopColor="#c7cdd6" />
-            </linearGradient>
-            <linearGradient id="dockSettingsPanel" x1="22" y1="20" x2="78" y2="82" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#ffffff" />
-              <stop offset="1" stopColor="#e5e7eb" />
-            </linearGradient>
-            <linearGradient id="dockSettingsGear" x1="30" y1="28" x2="70" y2="72" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#8b919a" />
-              <stop offset="1" stopColor="#545b66" />
-            </linearGradient>
-          </defs>
-          <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#dockSettingsBg)" />
-          <rect x="16" y="16" width="68" height="68" rx="20" fill="url(#dockSettingsPanel)" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" />
-          <circle cx="50" cy="50" r="20" fill="url(#dockSettingsGear)" stroke="#2f3640" strokeWidth="2.5" />
-          <circle cx="50" cy="50" r="9" fill="#2b3139" stroke="#1d2228" strokeWidth="1.5" />
-          <path d="M50 28v8M50 64v8M28 50h8M64 50h8M34 34l6 6M60 60l6 6M34 66l6-6M60 40l6-6" stroke="#6b7280" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="36" cy="34" r="5" fill="rgba(255,255,255,0.35)" />
         </svg>
       )}
       {type === "launchpad" && (
@@ -249,6 +207,30 @@ export const MacIcon = ({ type, size = 52, ...props }) => {
           <circle cx="43" cy="54" r="2.8" fill="#fff" />
           <circle cx="57" cy="54" r="2.8" fill="#fff" />
           <path d="M42 62c2.5 3 5.4 4.5 8 4.5s5.5-1.5 8-4.5" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      )}
+      {type === "settings" && (
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="dockSettingsBgFallback" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#f3f4f6" />
+              <stop offset="1" stopColor="#c7cdd6" />
+            </linearGradient>
+            <linearGradient id="dockSettingsPanelFallback" x1="22" y1="20" x2="78" y2="82" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#ffffff" />
+              <stop offset="1" stopColor="#e5e7eb" />
+            </linearGradient>
+            <linearGradient id="dockSettingsGearFallback" x1="30" y1="28" x2="70" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#8b919a" />
+              <stop offset="1" stopColor="#545b66" />
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#dockSettingsBgFallback)" />
+          <rect x="16" y="16" width="68" height="68" rx="20" fill="url(#dockSettingsPanelFallback)" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" />
+          <circle cx="50" cy="50" r="20" fill="url(#dockSettingsGearFallback)" stroke="#2f3640" strokeWidth="2.5" />
+          <circle cx="50" cy="50" r="9" fill="#2b3139" stroke="#1d2228" strokeWidth="1.5" />
+          <path d="M50 28v8M50 64v8M28 50h8M64 50h8M34 34l6 6M60 60l6 6M34 66l6-6M60 40l6-6" stroke="#6b7280" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="36" cy="34" r="5" fill="rgba(255,255,255,0.35)" />
         </svg>
       )}
     </div>

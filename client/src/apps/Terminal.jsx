@@ -9,7 +9,7 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
   const [histIdx, setHistIdx] = useState(-1);
   const [suggestions, setSuggestions] = useState([]);
   const [copiedLine, setCopiedLine] = useState(null);
-  const jsContextRef = useRef({}); // Persistent JS variables
+  const jsContextRef = useRef({});
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -23,130 +23,72 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
     setTimeout(() => setCopiedLine(null), 1200);
   };
 
-  const exec = (raw) => {
-    const line = raw.trim(); 
-    if (!line) return;
-    push(cwd + " $ " + line, "prompt");
-    setCmdHist((h) => [line, ...h]); 
-    setHistIdx(-1);
-    
-    const [cmd, ...args] = line.split(/\s+/); 
-    const arg = args.join(" ");
-    
-    // Built-in terminal commands
-    const cmds = {
-      help: () => push("Terminal Commands:\n  help             - Show this help\n  pwd              - Print working directory\n  whoami           - Print current user\n  clear            - Clear terminal\n  ls [path]        - List directory contents\n  cd [path]        - Change directory\n  cat <file>       - Read file contents\n  echo <text>      - Print text\n  mkdir <dir>      - Create directory\n  touch <file>     - Create file\n  rm <file>        - Delete file\n  run <file>       - Execute Python or JavaScript files\n\nJavaScript REPL:\n  Just type any JS expression and it will be executed!\n  Examples: 2+2, Math.random(), 'hello'.toUpperCase()\n  Variables persist across commands: x=5; x*2", "info"),
-      pwd: () => push(cwd),
-      whoami: () => push(currentUser.username),
-      clear: () => setLines([]),
-      ls: () => { 
-        const t = arg ? resolvePath(cwd, arg) : cwd; 
-        const items = listDir(fs, t); 
-        push(items.length ? items.map((i) => (i.isDir ? "📁 " + i.name + "/" : "📄 " + i.name)).join("\n") : "(empty)"); 
-      },
-      cd: () => { 
-        if (!arg) { setCwd("/home/" + currentUser.username); return; } 
-        const t = resolvePath(cwd, arg); 
-        const n = getNode(fs, t); 
-        if (n === null || typeof n !== "object") { 
-          push("cd: no such directory: " + arg, "error"); 
-          return; 
-        } 
-        setCwd(t); 
-      },
-      cat: () => { 
-        if (!arg) { push("Usage: cat <file>", "error"); return; } 
-        const p = resolvePath(cwd, arg); 
-        const n = getNode(fs, p); 
-        if (n === null) { push("cat: No such file: " + arg, "error"); return; } 
-        if (typeof n === "object") { push("cat: Is a directory: " + arg, "error"); return; } 
-        push(n); 
-      },
-      echo: () => push(arg),
-      mkdir: () => { 
-        if (!arg) { push("Usage: mkdir <dir>", "error"); return; } 
-        setFs(setNode(fs, resolvePath(cwd, arg), {})); 
-        notify({ icon: "folder", message: "Created " + arg }); 
-      },
-      touch: () => { 
-        if (!arg) { push("Usage: touch <file>", "error"); return; } 
-        setFs(setNode(fs, resolvePath(cwd, arg), "")); 
-        notify({ icon: "document", message: "Created " + arg }); 
-      },
-      rm: () => { 
-        if (!arg) { push("Usage: rm <file>", "error"); return; } 
-        const p = resolvePath(cwd, arg); 
-        if (getNode(fs, p) === null) { push("rm: No such file: " + arg, "error"); return; } 
-        setFs(deleteNode(fs, p)); 
-        push("Removed " + arg); 
-      },
-      run: () => {
-        if (!arg) { push("Usage: run <file>", "error"); return; }
-        const filePath = resolvePath(cwd, arg);
-        const fileContent = getNode(fs, filePath);
-        
-        if (fileContent === null) { 
-          push(`run: File not found: ${arg}`, "error"); 
-          return; 
-        }
-        if (typeof fileContent === "object") { 
-          push(`run: ${arg} is a directory`, "error"); 
-          return; 
-        }
-        
-        // Determine file type by extension
-        const ext = arg.split(".").pop().toLowerCase();
-        
-        if (ext === "js") {
-          push(`▶ Executing ${arg}...`);
-          evalJS(fileContent, true);
-        } else if (ext === "py") {
-          push(`▶ Executing ${arg}...`);
-          executePython(fileContent);
-        } else {
-          push(`run: Unsupported file type: .${ext}. Only .js and .py are supported.`, "error");
-        }
-      },
-    };
-    
-    // Check if it's a terminal command
-    if (cmds[cmd]) {
-      cmds[cmd]();
-    } else {
-      // Treat as JavaScript expression
-      evalJS(line);
+  const formatOutput = (value) => {
+    if (value === undefined) return "undefined";
+    if (value === null) return "null";
+    if (typeof value === "string") return `"${value}"`;
+    if (typeof value === "boolean") return String(value);
+    if (typeof value === "number") return String(value);
+    if (typeof value === "function") return "[Function: " + (value.name || "anonymous") + "]";
+    if (Array.isArray(value)) {
+      return "[ " + value.map(v => formatOutput(v)).join(", ") + " ]";
     }
+    if (typeof value === "object") {
+      const keys = Object.keys(value);
+      if (keys.length === 0) return "{}";
+      if (keys.length > 5) {
+        return "{ " + keys.slice(0, 5).map(k => `${k}: ${formatOutput(value[k])}`).join(", ") + ", ... }";
+      }
+      return "{ " + keys.map(k => `${k}: ${formatOutput(value[k])}`).join(", ") + " }";
+    }
+    return String(value);
   };
 
   const evalJS = (code, isFile = false) => {
     try {
-      // Check for simple variable assignment (e.g., x = 5)
-      const assignmentMatch = code.match(/^\s*(\w+)\s*=\s*(.+)$/);
-      
-      if (assignmentMatch && !code.includes("==") && !code.includes("===")) {
-        // This is an assignment
-        const varName = assignmentMatch[1];
-        const expression = assignmentMatch[2];
-        
-        // Execute the expression with context variables available
-        const contextKeys = Object.keys(jsContextRef.current);
-        const contextValues = contextKeys.map(k => jsContextRef.current[k]);
-        
-        const func = new Function(...contextKeys, `return ${expression}`);
-        const value = func(...contextValues);
-        
-        // Store the variable
-        jsContextRef.current[varName] = value;
-        if (!isFile) push(formatOutput(value));
-      } else {
-        // This is an expression
-        const contextKeys = Object.keys(jsContextRef.current);
-        const contextValues = contextKeys.map(k => jsContextRef.current[k]);
-        
+      const logs = [];
+      const fakeConsole = {
+        log: (...args) => logs.push(args.map(a => typeof a === "object" ? formatOutput(a) : String(a)).join(" ")),
+        error: (...args) => logs.push("Error: " + args.join(" ")),
+        warn: (...args) => logs.push("Warning: " + args.join(" ")),
+        info: (...args) => logs.push(args.join(" ")),
+      };
+
+      const contextKeys = ["console", ...Object.keys(jsContextRef.current)];
+      const contextValues = [fakeConsole, ...Object.keys(jsContextRef.current).map(k => jsContextRef.current[k])];
+
+      let result;
+      let hasReturnValue = false;
+
+      try {
+        // Try as expression first
         const func = new Function(...contextKeys, `"use strict"; return (${code})`);
-        const result = func(...contextValues);
-        if (!isFile) push(formatOutput(result));
+        result = func(...contextValues);
+        hasReturnValue = true;
+      } catch {
+        // Fall back to statement mode
+        const func = new Function(...contextKeys, code);
+        func(...contextValues);
       }
+
+      // Persist simple variable assignments
+      const assignmentMatch = code.match(/^\s*(\w+)\s*=\s*(.+)$/);
+      if (assignmentMatch && !code.includes("==") && !code.includes("===")) {
+        jsContextRef.current[assignmentMatch[1]] = result;
+      }
+
+      // Output console logs
+      logs.forEach(log => push(log));
+
+      // Output return value only if no logs and result is meaningful
+      if (!isFile && hasReturnValue && result !== undefined && logs.length === 0) {
+        push(formatOutput(result));
+      }
+
+      if (isFile && logs.length === 0) {
+        push("✓ Script executed successfully");
+      }
+
     } catch (e) {
       push(`Error: ${e.message}`, "error");
     }
@@ -155,8 +97,7 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
   const executePython = (code) => {
     try {
       const consoleLogs = [];
-      
-      // Create a Python-like environment
+
       const pythonEnv = {
         print: (...args) => consoleLogs.push(args.map(a => String(a)).join(" ")),
         len: (obj) => {
@@ -182,41 +123,30 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
         list: (val) => Array.isArray(val) ? [...val] : [...String(val)],
         dict: (obj) => obj || {},
       };
-      
-      // Convert Python code to JavaScript
+
       let jsCode = code;
-      
-      // Handle Python print statements
-      jsCode = jsCode.replace(/print\s*\(\s*([^)]*)\s*\)/g, (match, content) => {
-        return `print(${content})`;
-      });
-      
-      // Replace Python True/False/None with JS equivalents
       jsCode = jsCode.replace(/\bTrue\b/g, "true");
       jsCode = jsCode.replace(/\bFalse\b/g, "false");
       jsCode = jsCode.replace(/\bNone\b/g, "null");
-      
-      // Handle basic Python loops and conditionals
       jsCode = jsCode.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*([^)]+)\s*\)\s*:/g, "for (let $1 of range($2)) {");
       jsCode = jsCode.replace(/if\s+(.+?)\s*:/g, "if ($1) {");
       jsCode = jsCode.replace(/else\s*:/g, "} else {");
       jsCode = jsCode.replace(/elif\s+(.+?)\s*:/g, "} else if ($1) {");
-      
-      // Replace indented blocks with braces (simplified)
+
       const lines = jsCode.split("\n");
       let result = [];
       let prevIndent = 0;
       let openBraces = 0;
-      
+
       for (const line of lines) {
         const indent = line.search(/\S/);
         const trimmed = line.trim();
-        
+
         if (!trimmed || trimmed.startsWith("#")) {
           result.push(line);
           continue;
         }
-        
+
         if (indent < prevIndent) {
           const diff = prevIndent - indent;
           for (let i = 0; i < Math.ceil(diff / 2); i++) {
@@ -227,40 +157,29 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
             }
           }
         }
-        
+
         result.push(line);
         if (trimmed.endsWith(":")) {
           result[result.length - 1] = result[result.length - 1].slice(0, -1) + " {";
           openBraces++;
         }
-        
+
         prevIndent = indent;
       }
-      
-      // Close remaining braces
+
       for (let i = 0; i < openBraces; i++) {
         result.push("}");
       }
-      
+
       jsCode = result.join("\n");
-      
-      // Execute the converted code
+
       const func = new Function("print", "len", "range", "sum", "max", "min", "str", "int", "float", "list", "dict", jsCode);
       func(
-        pythonEnv.print,
-        pythonEnv.len,
-        pythonEnv.range,
-        pythonEnv.sum,
-        pythonEnv.max,
-        pythonEnv.min,
-        pythonEnv.str,
-        pythonEnv.int,
-        pythonEnv.float,
-        pythonEnv.list,
-        pythonEnv.dict
+        pythonEnv.print, pythonEnv.len, pythonEnv.range, pythonEnv.sum,
+        pythonEnv.max, pythonEnv.min, pythonEnv.str, pythonEnv.int,
+        pythonEnv.float, pythonEnv.list, pythonEnv.dict
       );
-      
-      // Output results
+
       if (consoleLogs.length > 0) {
         consoleLogs.forEach((log) => push(log));
       } else {
@@ -271,25 +190,89 @@ export function Terminal({ fs, setFs, cwd, setCwd, currentUser, notify, onCopy }
     }
   };
 
-  const formatOutput = (value) => {
-    if (value === undefined) return "undefined";
-    if (value === null) return "null";
-    if (typeof value === "string") return `"${value}"`;
-    if (typeof value === "boolean") return String(value);
-    if (typeof value === "number") return String(value);
-    if (typeof value === "function") return "[Function: " + (value.name || "anonymous") + "]";
-    if (Array.isArray(value)) {
-      return "[ " + value.map(v => formatOutput(v)).join(", ") + " ]";
+  const exec = (raw) => {
+    const line = raw.trim();
+    if (!line) return;
+    push(cwd + " $ " + line, "prompt");
+    setCmdHist((h) => [line, ...h]);
+    setHistIdx(-1);
+
+    const [cmd, ...args] = line.split(/\s+/);
+    const arg = args.join(" ");
+
+    const cmds = {
+      help: () => push("Terminal Commands:\n  help             - Show this help\n  pwd              - Print working directory\n  whoami           - Print current user\n  clear            - Clear terminal\n  ls [path]        - List directory contents\n  cd [path]        - Change directory\n  cat <file>       - Read file contents\n  echo <text>      - Print text\n  mkdir <dir>      - Create directory\n  touch <file>     - Create file\n  rm <file>        - Delete file\n  run <file>       - Execute Python or JavaScript files\n\nJavaScript REPL:\n  Just type any JS expression or statement!\n  Examples: console.log('hi'), for loops, let/const, etc.\n  Variables persist across commands: x=5; x*2", "info"),
+      pwd: () => push(cwd),
+      whoami: () => push(currentUser.username),
+      clear: () => setLines([]),
+      ls: () => {
+        const t = arg ? resolvePath(cwd, arg) : cwd;
+        const items = listDir(fs, t);
+        push(items.length ? items.map((i) => (i.isDir ? "📁 " + i.name + "/" : "📄 " + i.name)).join("\n") : "(empty)");
+      },
+      cd: () => {
+        if (!arg) { setCwd("/home/" + currentUser.username); return; }
+        const t = resolvePath(cwd, arg);
+        const n = getNode(fs, t);
+        if (n === null || typeof n !== "object") {
+          push("cd: no such directory: " + arg, "error");
+          return;
+        }
+        setCwd(t);
+      },
+      cat: () => {
+        if (!arg) { push("Usage: cat <file>", "error"); return; }
+        const p = resolvePath(cwd, arg);
+        const n = getNode(fs, p);
+        if (n === null) { push("cat: No such file: " + arg, "error"); return; }
+        if (typeof n === "object") { push("cat: Is a directory: " + arg, "error"); return; }
+        push(n);
+      },
+      echo: () => push(arg),
+      mkdir: () => {
+        if (!arg) { push("Usage: mkdir <dir>", "error"); return; }
+        setFs(setNode(fs, resolvePath(cwd, arg), {}));
+        notify({ icon: "folder", message: "Created " + arg });
+      },
+      touch: () => {
+        if (!arg) { push("Usage: touch <file>", "error"); return; }
+        setFs(setNode(fs, resolvePath(cwd, arg), ""));
+        notify({ icon: "document", message: "Created " + arg });
+      },
+      rm: () => {
+        if (!arg) { push("Usage: rm <file>", "error"); return; }
+        const p = resolvePath(cwd, arg);
+        if (getNode(fs, p) === null) { push("rm: No such file: " + arg, "error"); return; }
+        setFs(deleteNode(fs, p));
+        push("Removed " + arg);
+      },
+      run: () => {
+        if (!arg) { push("Usage: run <file>", "error"); return; }
+        const filePath = resolvePath(cwd, arg);
+        const fileContent = getNode(fs, filePath);
+
+        if (fileContent === null) { push(`run: File not found: ${arg}`, "error"); return; }
+        if (typeof fileContent === "object") { push(`run: ${arg} is a directory`, "error"); return; }
+
+        const ext = arg.split(".").pop().toLowerCase();
+
+        if (ext === "js") {
+          push(`▶ Executing ${arg}...`);
+          evalJS(fileContent, true);
+        } else if (ext === "py") {
+          push(`▶ Executing ${arg}...`);
+          executePython(fileContent);
+        } else {
+          push(`run: Unsupported file type: .${ext}. Only .js and .py are supported.`, "error");
+        }
+      },
+    };
+
+    if (cmds[cmd]) {
+      cmds[cmd]();
+    } else {
+      evalJS(line);
     }
-    if (typeof value === "object") {
-      const keys = Object.keys(value);
-      if (keys.length === 0) return "{}";
-      if (keys.length > 5) {
-        return "{ " + keys.slice(0, 5).map(k => `${k}: ${formatOutput(value[k])}`).join(", ") + ", ... }";
-      }
-      return "{ " + keys.map(k => `${k}: ${formatOutput(value[k])}`).join(", ") + " }";
-    }
-    return String(value);
   };
 
   const colors = { prompt: "var(--accent)", output: "var(--terminal-text)", error: "var(--accent-red)", info: "var(--text-secondary)" };

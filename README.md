@@ -8,6 +8,7 @@ VirtualOS is a browser-based desktop simulation built with React + Vite.
 - Music app with animated Spotify-style UI.
 - Search-only browser shell.
 - Groq-ready AI API proxy on the server.
+- MongoDB-backed user accounts, preferences, desktop layout, and file system data.
 
 ## Run the client
 
@@ -25,7 +26,13 @@ copy .env.example .env
 npm run dev
 ```
 
-Set `GROQ_API_KEY` in `server/.env` before calling the AI endpoint. The server auto-loads `.env` on startup.
+Set `MONGODB_URI` and `GROQ_API_KEY` in `server/.env` before starting the server. The server auto-loads `.env` on startup.
+
+Default local development values are:
+
+- `MONGODB_URI=mongodb://127.0.0.1:27017/virtualos`
+- `MONGODB_DB=virtualos`
+- `GROQ_MODEL=llama-3.3-70b-versatile`
 
 ## AI endpoint
 
@@ -33,4 +40,4 @@ The client can call `/api/ai/chat`, which is proxied to the local server in Vite
 
 Default model:
 
-- `llama-3.1-70b-versatile`
+- `llama-3.3-70b-versatile`

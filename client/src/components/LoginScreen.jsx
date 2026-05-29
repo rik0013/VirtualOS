@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { djb2, makeDefaultFS } from "../utils/fs";
 import { Storage } from "../utils/storage";
 import { WALLPAPERS } from "../constants/wallpapers";
 import wp5 from "../assets/wallpapers/wallpaper5.jpg";
@@ -10,6 +9,7 @@ export function LoginScreen({ onLogin }) {
   const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", password: "" });
+  const [pendingUser, setPendingUser] = useState(null);
   
   // Real Loading progress bar states
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -17,7 +17,7 @@ export function LoginScreen({ onLogin }) {
 
   // preloader and progress interval
   useEffect(() => {
-    if (isLoggingIn) {
+    if (isLoggingIn && pendingUser) {
       // 1. Asynchronously preload all desktop wallpapers to browser cache to eliminate rendering delays
       Object.keys(WALLPAPERS).forEach((key) => {
         const match = WALLPAPERS[key].match(/url\((.*?)\)/);
@@ -32,9 +32,9 @@ export function LoginScreen({ onLogin }) {
         setLoginProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
-            const users = Storage.getUsers();
-            const user = users.find((u) => u.username === username && u.passwordHash === djb2(password));
-            onLogin(user);
+            onLogin(pendingUser);
+            setIsLoggingIn(false);
+            setPendingUser(null);
             return 100;
           }
           // Dynamic random increment steps
@@ -45,46 +45,45 @@ export function LoginScreen({ onLogin }) {
 
       return () => clearInterval(interval);
     }
-  }, [isLoggingIn, username, password, onLogin]);
+  }, [isLoggingIn, pendingUser, onLogin]);
 
-  const handleLoginSubmit = () => {
+  const handleLoginSubmit = async () => {
     if (!username || !password) {
       setError("Please fill all fields");
       return;
     }
-    const users = Storage.getUsers();
-    const user = users.find((u) => u.username === username && u.passwordHash === djb2(password));
-    
-    if (!user) {
-      setError("Invalid username or password");
-      return;
-    }
+    try {
+      const result = await Storage.login(username, password);
+      if (!result?.user) {
+        setError("Invalid username or password");
+        return;
+      }
 
-    setError("");
-    setIsLoggingIn(true);
-    setLoginProgress(0);
-    Storage.saveSession({ currentUser: username, loginTime: Date.now() });
+      setError("");
+      setPendingUser(result.user);
+      setIsLoggingIn(true);
+      setLoginProgress(0);
+      Storage.saveSession({ currentUser: result.user.username, loginTime: Date.now() });
+    } catch (error) {
+      setError(error.message || "Invalid username or password");
+    }
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!newUser.username || !newUser.password) {
       setError("Fill all fields");
       return;
     }
-    const users = Storage.getUsers();
-    if (users.find((u) => u.username === newUser.username)) {
-      setError("Username taken");
-      return;
+    try {
+      await Storage.register(newUser.username, newUser.password);
+      setShowCreate(false);
+      setError("");
+      setUsername(newUser.username);
+      setPassword(newUser.password);
+      setNewUser({ username: "", password: "" });
+    } catch (error) {
+      setError(error.message || "Could not create account");
     }
-    const updated = [...users, { username: newUser.username, passwordHash: djb2(newUser.password) }];
-    Storage.saveUsers(updated);
-    Storage.saveFS(newUser.username, makeDefaultFS(newUser.username));
-    Storage.savePrefs(newUser.username, { theme: "dark", wallpaper: "sequoia", iconSize: "medium" });
-    setShowCreate(false);
-    setError("");
-    setUsername(newUser.username);
-    setPassword(newUser.password);
-    setNewUser({ username: "", password: "" });
   };
 
   return (
