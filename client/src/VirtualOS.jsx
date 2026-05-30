@@ -221,6 +221,23 @@ export default function VirtualOS() {
     notify({ icon: "trash", message: "Moved to Trash: " + name });
   };
 
+  const handleRenameDesktopItem = (oldName, newName) => {
+    const oldPath = "/home/" + currentUser.username + "/desktop/" + oldName;
+    const newPath = "/home/" + currentUser.username + "/desktop/" + newName;
+    const node = getNode(fs, oldPath);
+    if (node === null || getNode(fs, newPath) !== null) {
+      notify({ icon: "error", title: "Rename Failed", message: "A file with that name already exists." });
+      return;
+    }
+    let newFs = setNode(fs, newPath, node);
+    newFs = deleteNode(newFs, oldPath);
+    setFs(newFs);
+
+    const newLayout = { ...desktopLayout, [newName]: desktopLayout[oldName] };
+    delete newLayout[oldName];
+    setDesktopLayout(newLayout);
+  };
+
   const createFileAtPath = useCallback((targetPath, content = "") => {
     if (!currentUser) return false;
     setFs(setNode(fs, targetPath, content));
@@ -268,6 +285,7 @@ export default function VirtualOS() {
           onOpenFile={openFile}
           onOpenFolder={openFolder}
           onDelete={handleDeleteDesktopItem}
+          onRename={handleRenameDesktopItem}
           iconSize={prefs.iconSize || "medium"}
         />
         {windows.map((win) => (

@@ -3,7 +3,7 @@ import { getNode, setNode, deleteNode, listDir } from "../utils/fs";
 import { ICON_SIZES, ICON_FONT, ICON_TEXT } from "../constants/wallpapers";
 import { MacIcon } from "./Dock";
 
-export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFile, onOpenFolder, onDelete, iconSize }) {
+export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFile, onOpenFolder, onDelete, onRename, iconSize }) {
   const items = listDir(fs, desktopPath);
   const dragState = useRef(null);
   const [selected, setSelected] = useState(null);
@@ -52,6 +52,14 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
   };
 
   const startRename = (item) => { setRenamingItem(item.name); setRenameVal(item.name); setCtxMenu(null); };
+  const handleRename = (oldName, newName) => {
+    if (!newName || oldName === newName) {
+      setRenamingItem(null);
+      return;
+    }
+    onRename(oldName, newName);
+    setRenamingItem(null);
+  };
 
   useEffect(() => {
     const handler = (e) => { 
@@ -93,20 +101,9 @@ export function DesktopIcons({ fs, desktopPath, layout, onLayoutChange, onOpenFi
             </div>
             {renamingItem === item.name ? (
               <input autoFocus value={renameVal} onChange={(e) => setRenameVal(e.target.value)}
+                onBlur={() => handleRename(item.name, renameVal)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    // rename: move node, delete old, update layout
-                    const oldPath = desktopPath + "/" + item.name;
-                    const newPath = desktopPath + "/" + renameVal;
-                    const content = getNode(fs, oldPath);
-                    let newFs = setNode(fs, newPath, content);
-                    newFs = deleteNode(newFs, oldPath);
-                    onOpenFile.__setFs && onOpenFile.__setFs(newFs);
-                    const newLayout = { ...fullLayout, [renameVal]: fullLayout[item.name] };
-                    delete newLayout[item.name];
-                    onLayoutChange(newLayout);
-                    setRenamingItem(null);
-                  }
+                  if (e.key === "Enter") handleRename(item.name, renameVal);
                   if (e.key === "Escape") setRenamingItem(null);
                 }}
                 onClick={(e) => e.stopPropagation()}
