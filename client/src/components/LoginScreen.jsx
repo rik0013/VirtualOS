@@ -4,16 +4,33 @@ import { WALLPAPERS } from "../constants/wallpapers";
 import wp5 from "../assets/wallpapers/wallpaper5.jpg";
 
 export function LoginScreen({ onLogin }) {
-  const [username, setUsername] = useState("user");
-  const [password, setPassword] = useState("user");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [newUser, setNewUser] = useState({ username: "", password: "" });
   const [pendingUser, setPendingUser] = useState(null);
+  const [users, setUsers] = useState([]);
   
   // Real Loading progress bar states
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginProgress, setLoginProgress] = useState(0);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const userList = await Storage.getUsers();
+        setUsers(userList);
+        if (userList.length > 0) {
+          setUsername(userList[0].username);
+        }
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+        // Handle error appropriately
+      }
+    };
+    fetchUsers();
+  }, []);
 
   // preloader and progress interval
   useEffect(() => {

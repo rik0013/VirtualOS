@@ -43,6 +43,8 @@ export const Storage = {
 
   getUser: async (username) => requestJson(`/users/${encodeURIComponent(username)}`),
 
+  getUsers: async () => requestJson('/users'),
+
   updateUser: async (username, patch) => requestJson(`/users/${encodeURIComponent(username)}`, {
     method: "PUT",
     body: patch,
