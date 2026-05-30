@@ -170,6 +170,35 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
 
   const handlePointerUp = () => setMarquee(null);
 
+  const handleRestoreSelected = () => {
+    let newFs = fs;
+    const homePath = "/home/" + currentUser.username;
+    selected.forEach(name => {
+      const oldPath = "/trash/" + name;
+      const newPath = homePath + "/" + name;
+      try {
+        newFs = moveNode(newFs, oldPath, newPath);
+      } catch (e) {
+        const timestamp = new Date().toISOString();
+        const newName = `${name} (${timestamp})`;
+        newFs = moveNode(newFs, oldPath, `${homePath}/${newName}`);
+      }
+    });
+    setFs(newFs);
+    notify({ icon: "folder", message: `Restored ${selected.size} item(s) to Home` });
+    setSelected(new Set());
+  };
+
+  const handlePermanentlyDeleteSelected = () => {
+    let newFs = fs;
+    selected.forEach(name => {
+      newFs = deleteNode(newFs, "/trash/" + name);
+    });
+    setFs(newFs);
+    notify({ icon: "trash", message: `Permanently deleted ${selected.size} item(s)` });
+    setSelected(new Set());
+  };
+
   const handleContextMenu = (e, name) => {
     e.preventDefault();
     e.stopPropagation();
@@ -191,15 +220,23 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
       options.push({ divider: true }, { label: "Properties", action: () => notify({ icon: "info", message: "Folder Properties" }) });
     } else {
       const activeName = selected.has(name) && selected.size > 1 ? `${selected.size} items` : name;
-      options = [
-        { label: "Open", action: () => { if (selected.size === 1) navigate(name); } },
-        { label: "Rename", action: () => notify({ icon: "info", message: "Rename " + activeName }) },
-        { divider: true },
-        { label: "Copy", action: () => notify({ icon: "info", message: "Copied " + activeName }) },
-        { label: "Move to Trash", danger: true, action: () => handleDeleteSelected() },
-        { divider: true },
-        { label: "Properties", action: () => notify({ icon: "info", message: "Properties for " + activeName }) }
-      ];
+      const isTrash = path === "/trash";
+      if (isTrash) {
+        options = [
+          { label: "Restore", action: () => handleRestoreSelected() },
+          { label: "Delete Permanently", danger: true, action: () => handlePermanentlyDeleteSelected() },
+        ];
+      } else {
+        options = [
+          { label: "Open", action: () => { if (selected.size === 1) navigate(name); } },
+          { label: "Rename", action: () => notify({ icon: "info", message: "Rename " + activeName }) },
+          { divider: true },
+          { label: "Copy", action: () => notify({ icon: "info", message: "Copied " + activeName }) },
+          { label: "Move to Trash", danger: true, action: () => handleDeleteSelected() },
+          { divider: true },
+          { label: "Properties", action: () => notify({ icon: "info", message: "Properties for " + activeName }) }
+        ];
+      }
     }
     setContextMenu({ x: e.clientX, y: e.clientY, options });
   };
