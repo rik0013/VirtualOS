@@ -58,7 +58,6 @@ export function makeDefaultFS(username) {
     home: {
       [username]: {
         desktop: {
-          "readme.txt": "Welcome to VirtualOS!\n\nThis file lives on your desktop.\nDouble-click to open, drag to reposition.\nRight-click the desktop for options.",
           projects: {},
         },
         documents: { "notes.txt": "Your notes go here." },
