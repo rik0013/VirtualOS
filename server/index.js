@@ -14,7 +14,7 @@ if (fs.existsSync(envPath)) {
     const separatorIndex = trimmed.indexOf('=');
     const key = trimmed.slice(0, separatorIndex).trim();
     const value = trimmed.slice(separatorIndex + 1).trim();
-    if (key && !(key in process.env)) process.env[key] = value;
+    if (key) process.env[key] = value;
   }
 }
 
@@ -311,6 +311,7 @@ async function handleGroqChat(req, res) {
   });
 
   const data = await upstream.json();
+
   if (!upstream.ok) {
     sendJson(res, upstream.status, data);
     return;
