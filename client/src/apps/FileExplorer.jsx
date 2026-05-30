@@ -1,5 +1,5 @@
 ﻿import React, { useState, useRef, useEffect } from "react";
-import { getNode, setNode, deleteNode, listDir } from "../utils/fs";
+import { getNode, setNode, deleteNode, listDir, moveNode } from "../utils/fs";
 import { MacIcon } from "../components/Dock";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -184,8 +184,11 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
         { label: "New File", action: () => handleNew(false) },
         { divider: true },
         { label: "Paste", action: () => notify({ icon: "info", message: "Paste not implemented" }) },
-        { label: "Properties", action: () => notify({ icon: "info", message: "Folder Properties" }) }
       ];
+      if (isTrash && items.length > 0) {
+        options.push({ divider: true }, { label: "Empty Trash", danger: true, action: handleEmptyTrash });
+      }
+      options.push({ divider: true }, { label: "Properties", action: () => notify({ icon: "info", message: "Folder Properties" }) });
     } else {
       const activeName = selected.has(name) && selected.size > 1 ? `${selected.size} items` : name;
       options = [
@@ -193,7 +196,7 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
         { label: "Rename", action: () => notify({ icon: "info", message: "Rename " + activeName }) },
         { divider: true },
         { label: "Copy", action: () => notify({ icon: "info", message: "Copied " + activeName }) },
-        { label: "Delete", danger: true, action: () => handleDeleteSelected() },
+        { label: "Move to Trash", danger: true, action: () => handleDeleteSelected() },
         { divider: true },
         { label: "Properties", action: () => notify({ icon: "info", message: "Properties for " + activeName }) }
       ];
@@ -203,12 +206,25 @@ export function FileExplorer({ fs, setFs, onOpenFile, currentUser, notify, initi
 
   const handleDeleteSelected = () => {
     let newFs = fs;
+    const trashPath = "/trash";
     selected.forEach(name => {
-      newFs = deleteNode(newFs, (path === "/" ? "" : path) + "/" + name);
+      const oldPath = (path === "/" ? "" : path) + "/" + name;
+      const newPath = trashPath + "/" + name;
+      newFs = moveNode(newFs, oldPath, newPath);
     });
     setFs(newFs);
-    notify({ icon: "trash", message: `Deleted ${selected.size} item(s)` });
+    notify({ icon: "trash", message: `Moved ${selected.size} item(s) to Trash` });
     setSelected(new Set());
+  };
+
+  const handleEmptyTrash = () => {
+    let newFs = fs;
+    const trashItems = listDir(fs, "/trash");
+    trashItems.forEach(item => {
+      newFs = deleteNode(newFs, "/trash/" + item.name);
+    });
+    setFs(newFs);
+    notify({ icon: "trash", message: "Trash has been emptied" });
   };
 
   const handleNew = (isDir) => {

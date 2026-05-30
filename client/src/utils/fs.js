@@ -1,5 +1,3 @@
-
-
 export function djb2(str) {
   let hash = 5381;
   for (let i = 0; i < str.length; i++) hash = (hash * 33) ^ str.charCodeAt(i);
@@ -31,6 +29,17 @@ export function deleteNode(fs, path) {
   delete node[parts[parts.length - 1]];
   return clone;
 }
+export function moveNode(fs, oldPath, newPath) {
+  const clone = deepClone(fs);
+  const value = getNode(clone, oldPath);
+  if (value === null) throw new Error("Source path does not exist");
+
+  const tempFs = deleteNode(clone, oldPath);
+  
+  const finalFs = setNode(tempFs, newPath, value);
+  return finalFs;
+}
+
 export function listDir(fs, path) {
   const node = getNode(fs, path);
   if (!node || typeof node !== "object") return [];
