@@ -29,7 +29,7 @@ import { Storage } from "../utils/storage";
 import { WALLPAPERS } from "../constants/wallpapers";
 
 const sections = [
-  { id: "apple-id", label: "VOS ID", icon: UserRound, group: "Account" },
+  { id: "vos-id", label: "VOS ID", icon: UserRound, group: "Account" },
   { id: "general", label: "General", icon: Sparkles, group: "System" },
   { id: "appearance", label: "Appearance", icon: Palette, group: "Personal" },
   { id: "control-center", label: "Control Center", icon: LayoutGrid, group: "Personal" },
@@ -187,7 +187,7 @@ export function Settings({ prefs, setPrefs, currentUser, notify, onAccountChange
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>{currentUser.username}</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>Apple ID • VirtualOS</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>VOS ID • VirtualOS</div>
             </div>
           </div>
           <div style={{ marginTop: 12, position: "relative" }}>
@@ -355,10 +355,10 @@ export function Settings({ prefs, setPrefs, currentUser, notify, onAccountChange
           </div>
         )}
 
-        {tab === "apple-id" && (
+        {tab === "vos-id" && (
           <div style={{ display: "grid", gap: 18 }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 900 }}>Apple ID</div>
+              <div style={{ fontSize: 28, fontWeight: 900 }}>VOS ID</div>
               <div style={{ marginTop: 6, color: "rgba(255,255,255,0.62)" }}>Account settings and device info.</div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
